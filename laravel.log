@@ -1,0 +1,13 @@
+[2025-04-13 20:38:29] local.INFO: Dados recebidos no login {"email":"usuario@gmail.com","password":"12345678"} 
+[2025-04-13 20:41:01] local.INFO: Dados recebidos: {"name":"teste","email":"teste@gmail.com","password":"12345678","tipo_usuario":"U"} 
+[2025-04-13 23:54:53] local.INFO: Dados recebidos: {"name":"Vinicius","email":"vinicius@gmail.com","password":"12345678","tipo_usuario":"U"} 
+[2025-04-13 23:55:10] local.INFO: Dados recebidos no login {"email":"vinicius@gmail.com","password":"12345678"} 
+[2025-04-14 00:02:02] local.INFO: Dados recebidos: {"name":"Paulo Ricardo","email":"pr838908@gmail.com","password":"Z8618190","tipo_usuario":"U"} 
+[2025-04-14 00:02:28] local.INFO: Dados recebidos no login {"email":"pr838908@gmail.com","password":"z8618190"} 
+[2025-04-14 00:02:36] local.INFO: Dados recebidos no login {"email":"pr838908@gmail.com","password":"z8618190"} 
+[2025-04-14 00:03:19] local.INFO: Dados recebidos no login {"email":"pr838908@gmail.com","password":"Z8618190"} 
+[2025-04-14 00:12:40] local.INFO: Dados recebidos no login {"email":"vinicius@gmail.com","password":"12345678"} 
+[2025-04-14 00:49:10] local.INFO: Dados recebidos no login {"email":"vinicius@gmail.com","password":"12345678"} 
+[2025-04-14 00:50:23] local.INFO: Dados recebidos no login {"email":"vinicius@gmail.com","password":"123456878"} 
+[2025-04-14 00:50:30] local.INFO: Dados recebidos no login {"email":"vinicius@gmail.com","password":"12345678"} 
+[2025-04-14 00:56:54] local.INFO: Dados recebidos no login {"email":"vinicius@gmail.com","password":"12345678"} 
