@@ -24,8 +24,23 @@ class RegisterUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'password.regex' => 'A senha deve conter: Mínimo 8 caracteres,1 letra maiúscula,1 minúscula,1 número,1 caractere especial (@$!%*?&)',
+            'required' => 'O campo :attribute é obrigatório.',
+            'string' => 'O campo :attribute deve ser texto.',
+            'email' => 'O campo :attribute deve ser um e-mail válido.',
+            'max' => 'O campo :attribute não pode ter mais que :max caracteres.',
+            'min' => 'O campo :attribute deve ter no mínimo :min caracteres.',
+            'password.regex' => 'A senha deve conter: mínimo 8 caracteres, 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial (@$!%*?&).',
             'user_type.in' => 'O tipo de usuário deve ser B (Barbeiro) ou U (Usuário)'
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'nome',
+            'email' => 'e-mail',
+            'password' => 'senha',
+            'user_type' => 'tipo de usuário'
         ];
     }
 }

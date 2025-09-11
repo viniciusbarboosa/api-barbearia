@@ -26,7 +26,12 @@ class ServiceController extends Controller
 
     public function list_by_barber(Request $request)
     {
-        $request->validate(['user_id' => 'required|exists:users,id']);
+        \Illuminate\Support\Facades\Validator::make($request->all(), ['user_id' => 'required|exists:users,id'], [
+            'required' => 'O campo :attribute é obrigatório.',
+            'exists' => 'O :attribute informado não existe.'
+        ], [
+            'user_id' => 'barbeiro'
+        ])->validate();
 
         $services = Servico::where('user_id', $request->user_id)
             ->where('ativo', true)

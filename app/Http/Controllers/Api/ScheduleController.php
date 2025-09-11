@@ -43,7 +43,12 @@ class ScheduleController extends Controller
 
     public function list_by_date(Request $request)
     {
-        $request->validate(['data' => 'required|date']);
+        \Illuminate\Support\Facades\Validator::make($request->all(), ['data' => 'required|date'], [
+            'required' => 'O campo :attribute é obrigatório.',
+            'date' => 'O campo :attribute deve ser uma data válida.'
+        ], [
+            'data' => 'data'
+        ])->validate();
 
         $schedules = HorarioBarbearia::where('user_id', Auth::id())->where('data', $request->data)->orderBy('horario_inicio')->get();
 
@@ -52,7 +57,12 @@ class ScheduleController extends Controller
 
     public function toggle_availability(Request $request, $id)
     {
-        $request->validate(['disponivel' => 'required|boolean']);
+        \Illuminate\Support\Facades\Validator::make($request->all(), ['disponivel' => 'required|boolean'], [
+            'required' => 'O campo :attribute é obrigatório.',
+            'boolean' => 'O campo :attribute deve ser verdadeiro ou falso.'
+        ], [
+            'disponivel' => 'disponibilidade'
+        ])->validate();
 
         $schedule = HorarioBarbearia::where('user_id', Auth::id())->findOrFail($id);
         $schedule->update(['disponivel' => $request->disponivel]);
@@ -63,7 +73,12 @@ class ScheduleController extends Controller
     public function list_schedules($barberId, Request $request)
     {
         try {
-            $request->validate(['data' => 'required|date_format:Y-m-d']);
+            \Illuminate\Support\Facades\Validator::make($request->all(), ['data' => 'required|date_format:Y-m-d'], [
+                'required' => 'O campo :attribute é obrigatório.',
+                'date_format' => 'O campo :attribute deve ter o formato :format.'
+            ], [
+                'data' => 'data'
+            ])->validate();
 
             $schedules = HorarioBarbearia::where('user_id', $barberId)->where('data', $request->data)->orderBy('horario_inicio')->get()->map(function ($schedule) {
                 $booked = Agendamento::where('horario_id', $schedule->id)->where('data', $schedule->data)->exists();

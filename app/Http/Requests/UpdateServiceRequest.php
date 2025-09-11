@@ -20,4 +20,23 @@ class UpdateServiceRequest extends FormRequest
             'ativo' => 'boolean'
         ];
     }
+    public function messages(): array
+    {
+        return [
+            'string' => 'O campo :attribute deve ser texto.',
+            'numeric' => 'O campo :attribute deve ser numérico.',
+            'integer' => 'O campo :attribute deve ser um número inteiro.',
+            'boolean' => 'O campo :attribute deve ser verdadeiro ou falso.'
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'nome' => 'nome',
+            'preco' => 'preço',
+            'duracao_minutos' => 'duração em minutos',
+            'ativo' => 'ativo'
+        ];
+    }
 }

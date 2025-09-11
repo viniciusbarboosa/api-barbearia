@@ -19,4 +19,23 @@ class StoreServiceRequest extends FormRequest
             'duracao_minutos' => 'nullable|integer|min:1'
         ];
     }
+    public function messages(): array
+    {
+        return [
+            'required' => 'O campo :attribute é obrigatório.',
+            'string' => 'O campo :attribute deve ser texto.',
+            'numeric' => 'O campo :attribute deve ser numérico.',
+            'integer' => 'O campo :attribute deve ser um número inteiro.',
+            'min' => 'O campo :attribute deve ser no mínimo :min.'
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'nome' => 'nome',
+            'preco' => 'preço',
+            'duracao_minutos' => 'duração em minutos'
+        ];
+    }
 }

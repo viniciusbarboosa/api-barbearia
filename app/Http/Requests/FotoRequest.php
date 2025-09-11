@@ -18,4 +18,19 @@ class FotoRequest extends FormRequest
             'descricao' => 'nullable|string'
         ];
     }
+    public function messages(): array
+    {
+        return [
+            'required' => 'O campo :attribute é obrigatório.',
+            'string' => 'O campo :attribute deve ser texto.'
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'foto' => 'foto',
+            'descricao' => 'descrição'
+        ];
+    }
 }
