@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Servico;
+use App\Models\Service;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
 use Illuminate\Http\Request;
@@ -17,7 +17,7 @@ class ServiceController extends Controller
         $page = $request->query('page', 1);
         $perPage = 10;
 
-        $services = Servico::where('user_id', $user->id)
+    $services = Service::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -33,7 +33,7 @@ class ServiceController extends Controller
             'user_id' => 'barbeiro'
         ])->validate();
 
-        $services = Servico::where('user_id', $request->user_id)
+    $services = Service::where('user_id', $request->user_id)
             ->where('ativo', true)
             ->orderBy('nome')
             ->get()
@@ -54,7 +54,7 @@ class ServiceController extends Controller
         $user = Auth::user();
         $data = $request->validated();
 
-        $service = Servico::create([
+    $service = Service::create([
             'user_id' => $user->id,
             'nome' => $data['nome'],
             'preco' => $data['preco'],
@@ -68,7 +68,7 @@ class ServiceController extends Controller
     public function update(UpdateServiceRequest $request, $id)
     {
         $user = Auth::user();
-        $service = Servico::where('user_id', $user->id)->findOrFail($id);
+    $service = Service::where('user_id', $user->id)->findOrFail($id);
         $data = $request->validated();
         $service->update($data);
         return response()->json($service);
@@ -77,7 +77,7 @@ class ServiceController extends Controller
     public function toggle_active($id)
     {
         $user = Auth::user();
-        $service = Servico::where('user_id', $user->id)->findOrFail($id);
+    $service = Service::where('user_id', $user->id)->findOrFail($id);
         $service->ativo = !$service->ativo;
         $service->save();
         return response()->json($service);

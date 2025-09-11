@@ -9,25 +9,25 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('horario_barbearias', function (Blueprint $table) {
+    Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
+            $table->integer('barbeiro_id');
+            $table->integer('servico_id');
+            $table->integer('horario_id');
             $table->date('data');
-            $table->time('horario_inicio');
-            $table->time('horario_fim');
-            $table->boolean('disponivel')->default(true);
+            $table->enum('status', ['A', 'C'])->default('A');
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('horario_barbearias');
+    Schema::dropIfExists('appointments');
     }
 };

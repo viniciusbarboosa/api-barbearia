@@ -21,8 +21,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-    'password',
-    'user_type',
+        'password',
+        'user_type',
         'aprovado',
         'foto_perfil'
     ];
@@ -53,6 +53,6 @@ class User extends Authenticatable
     //RELACIONAMENTOS COM OUTRAS TABLES
     public function fotosBarbearia()
     {
-        return $this->hasMany(BarbeariaFoto::class);
+    return $this->hasMany(BarberPhoto::class);
     }
 }

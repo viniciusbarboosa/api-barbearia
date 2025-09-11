@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Agendamento;
-use App\Models\HorarioBarbearia;
+use App\Models\Appointment;
+use App\Models\BarberSchedule;
 use App\Http\Requests\CreateScheduleRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -21,13 +21,13 @@ class ScheduleController extends Controller
         $end = Carbon::parse($request->horario_fim_expediente);
         $user_id = Auth::id();
 
-        HorarioBarbearia::where('user_id', $user_id)->where('data', $date)->delete();
+    BarberSchedule::where('user_id', $user_id)->where('data', $date)->delete();
 
         $created = [];
         $current = $start->copy();
 
         while ($current <= $end) {
-            $horario = HorarioBarbearia::create([
+            $horario = BarberSchedule::create([
                 'user_id' => $user_id,
                 'data' => $date,
                 'horario_inicio' => $current->format('H:i:s'),
@@ -50,7 +50,7 @@ class ScheduleController extends Controller
             'data' => 'data'
         ])->validate();
 
-        $schedules = HorarioBarbearia::where('user_id', Auth::id())->where('data', $request->data)->orderBy('horario_inicio')->get();
+    $schedules = BarberSchedule::where('user_id', Auth::id())->where('data', $request->data)->orderBy('horario_inicio')->get();
 
         return response()->json($schedules);
     }
@@ -64,7 +64,7 @@ class ScheduleController extends Controller
             'disponivel' => 'disponibilidade'
         ])->validate();
 
-        $schedule = HorarioBarbearia::where('user_id', Auth::id())->findOrFail($id);
+    $schedule = BarberSchedule::where('user_id', Auth::id())->findOrFail($id);
         $schedule->update(['disponivel' => $request->disponivel]);
 
         return response()->json($schedule);
@@ -80,8 +80,8 @@ class ScheduleController extends Controller
                 'data' => 'data'
             ])->validate();
 
-            $schedules = HorarioBarbearia::where('user_id', $barberId)->where('data', $request->data)->orderBy('horario_inicio')->get()->map(function ($schedule) {
-                $booked = Agendamento::where('horario_id', $schedule->id)->where('data', $schedule->data)->exists();
+            $schedules = BarberSchedule::where('user_id', $barberId)->where('data', $request->data)->orderBy('horario_inicio')->get()->map(function ($schedule) {
+                $booked = Appointment::where('horario_id', $schedule->id)->where('data', $schedule->data)->exists();
 
                 return [
                     'id' => $schedule->id,

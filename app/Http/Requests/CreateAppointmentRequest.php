@@ -33,7 +33,7 @@ class CreateAppointmentRequest extends FormRequest
     {
         return [
             'barbeiro_id' => 'barbeiro',
-            'servico_id' => 'serviço',
+            'servico_id' => 'service',
             'horario_id' => 'horário',
             'data' => 'data'
         ];

@@ -5,17 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BarbeariaFoto extends Model
+class Project extends Model
 {
     use HasFactory;
 
+    protected $table = 'project';
+
     protected $fillable = [
-        'user_id',
-        'foto_path'
+        'nome',
+        'ativo',
+        'link',
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    protected $casts = [
+        'ativo' => 'string',
+    ];
 }
