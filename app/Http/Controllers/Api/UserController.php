@@ -16,7 +16,7 @@ class UserController extends Controller
 {
     public function list_approved_barbers()
     {
-        $barbers = User::where('tipo_usuario', 'B')
+    $barbers = User::where('user_type', 'B')
             ->where('aprovado', 1)
             ->orderBy('name')
             ->with('fotosBarbearia')
@@ -32,7 +32,7 @@ class UserController extends Controller
 
             $user = Auth::user();
 
-            if (!$user || $user->tipo_usuario !== 'B') {
+            if (!$user || $user->user_type !== 'B') {
                 return response()->json(['error' => 'Apenas barbeiros podem adicionar fotos'], 403);
             }
 
@@ -70,7 +70,7 @@ class UserController extends Controller
         try {
             $user = auth()->user();
 
-            if (!$user || $user->tipo_usuario !== 'B') {
+            if (!$user || $user->user_type !== 'B') {
                 return response()->json(['error' => 'Acesso não autorizado'], 403);
             }
 
@@ -95,7 +95,7 @@ class UserController extends Controller
             $user = Auth::user();
             $foto = BarbeariaFoto::find($id);
 
-            if (!$user || $user->tipo_usuario !== 'B') {
+            if (!$user || $user->user_type !== 'B') {
                 return response()->json(['error' => 'Apenas barbeiros podem remover fotos'], 403);
             }
 
