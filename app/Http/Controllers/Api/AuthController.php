@@ -11,16 +11,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
-class AutenticadorController extends Controller
+class AuthController extends Controller
 {
     public function register(RegisterUserRequest $request)
-    {
+    {   
         Log::info('Dados recebidos:', $request->all());
 
         try {
             $data = $request->validated();
 
-            // Criação do usuário
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
@@ -35,17 +34,12 @@ class AutenticadorController extends Controller
             ], 201);
         } catch (\Exception $e) {
             Log::error('Erro ao criar usuário: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Erro ao processar a requisição'
-            ], 500);
+            return response()->json(['success' => false, 'error' => 'Erro ao processar a requisição'], 500);
         }
     }
 
     public function login(LoginRequest $request)
     {
-        // Validation handled by LoginRequest
-
         Log::info('Dados recebidos no login', $request->all());
 
         if (!Auth::attempt($request->only('email', 'password'))) {
@@ -61,7 +55,6 @@ class AutenticadorController extends Controller
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
-
         return response()->json(['message' => 'Logout realizado com sucesso!']);
     }
 }

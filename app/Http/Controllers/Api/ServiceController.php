@@ -9,7 +9,7 @@ use App\Http\Requests\UpdateServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class ServicoController extends Controller
+class ServiceController extends Controller
 {
     public function list(Request $request)
     {
@@ -17,74 +17,64 @@ class ServicoController extends Controller
         $page = $request->query('page', 1);
         $perPage = 10;
 
-        $servicos = Servico::where('user_id', $user->id)
+        $services = Servico::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
-        return response()->json($servicos);
+        return response()->json($services);
     }
 
     public function list_by_barber(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id'
-        ]);
+        $request->validate(['user_id' => 'required|exists:users,id']);
 
-        $servicos = Servico::where('user_id', $request->user_id)
+        $services = Servico::where('user_id', $request->user_id)
             ->where('ativo', true)
             ->orderBy('nome')
             ->get()
-            ->map(function ($servico) {
+            ->map(function ($service) {
                 return [
-                    'id' => $servico->id,
-                    'nome' => $servico->nome,
-                    'preco' => (float)$servico->preco, 
-                    'duracao_minutos' => $servico->duracao_minutos
+                    'id' => $service->id,
+                    'nome' => $service->nome,
+                    'preco' => (float)$service->preco,
+                    'duracao_minutos' => $service->duracao_minutos
                 ];
             });
 
-        return response()->json([
-            'success' => true,
-            'data' => $servicos
-        ]);
+        return response()->json(['success' => true, 'data' => $services]);
     }
-
 
     public function store(StoreServiceRequest $request)
     {
         $user = Auth::user();
         $data = $request->validated();
 
-        $servico = Servico::create([
-            'user_id' => $user->id, // Automaticamente associa ao usuário logado
+        $service = Servico::create([
+            'user_id' => $user->id,
             'nome' => $data['nome'],
             'preco' => $data['preco'],
             'duracao_minutos' => $data['duracao_minutos'] ?? 30,
             'ativo' => true
         ]);
 
-        return response()->json($servico, 201);
+        return response()->json($service, 201);
     }
 
     public function update(UpdateServiceRequest $request, $id)
     {
         $user = Auth::user();
-        $servico = Servico::where('user_id', $user->id) //USUARIO LOGADO
-            ->findOrFail($id);
+        $service = Servico::where('user_id', $user->id)->findOrFail($id);
         $data = $request->validated();
-
-        $servico->update($data);
-        return response()->json($servico);
+        $service->update($data);
+        return response()->json($service);
     }
 
     public function toggle_active($id)
     {
         $user = Auth::user();
-        $servico = Servico::where('user_id', $user->id)
-            ->findOrFail($id);
-
-        $servico->ativo = !$servico->ativo;
-        $servico->save();
-        return response()->json($servico);
+        $service = Servico::where('user_id', $user->id)->findOrFail($id);
+        $service->ativo = !$service->ativo;
+        $service->save();
+        return response()->json($service);
     }
 }

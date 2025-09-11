@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\Api\AgendamentoController;
-use App\Http\Controllers\Api\AutenticadorController;
-use App\Http\Controllers\Api\HorarioBarbeariaController;
+use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\ProjetoController;
-use App\Http\Controllers\Api\ServicoController;
-use App\Http\Controllers\Api\UsuarioController;
+use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,44 +13,42 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //})->middleware('auth:sanctum');
 
-
-Route::post('/criarUsuario', [AutenticadorController::class,'criar']);
-Route::post('/logar', [AutenticadorController::class,'login']);
+Route::post('/users/register', [AuthController::class,'register']);
+Route::post('/users/login', [AuthController::class,'login']);
 
 //USUARIO
 Route::middleware('auth:sanctum')->group(function () {
-    Route::put('/usuario/foto', [UsuarioController::class, 'atualizarFoto']);
-    Route::get('/usuario/foto', [UsuarioController::class, 'obterFoto']);
+    Route::put('/users/photo', [UserController::class, 'update_photo']);
+    Route::get('/users/photo', [UserController::class, 'get_photo']);
 });
 //SERVICOS
-Route::get('/servicos/listar', [ServicoController::class, 'listar'])->middleware('auth:sanctum');
-Route::get('/servicos/listarBarbeiro', [ServicoController::class, 'listarBarbeiro'])->middleware('auth:sanctum');
-Route::post('/servicos/criar', [ServicoController::class, 'create'])->middleware('auth:sanctum');
-Route::put('/servicos/{id}', [ServicoController::class, 'update'])->middleware('auth:sanctum');
-Route::patch('/servicos/{id}/toggle', [ServicoController::class, 'toggleAtivo'])->middleware('auth:sanctum');
+Route::get('/services', [ServiceController::class, 'list'])->middleware('auth:sanctum');
+Route::get('/services/by-barber', [ServiceController::class, 'list_by_barber'])->middleware('auth:sanctum');
+Route::post('/services', [ServiceController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/services/{id}', [ServiceController::class, 'update'])->middleware('auth:sanctum');
+Route::patch('/services/{id}/toggle', [ServiceController::class, 'toggle_active'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/horarios/criar-lote', [HorarioBarbeariaController::class, 'criarHorarios']);
-    Route::get('/horarios/listar', [HorarioBarbeariaController::class, 'listarPorData']);
-    Route::patch('/horarios/{id}', [HorarioBarbeariaController::class, 'toggleDisponibilidade']);
+    Route::post('/schedules/batch-create', [ScheduleController::class, 'create_schedules']);
+    Route::get('/schedules', [ScheduleController::class, 'list_by_date']);
+    Route::patch('/schedules/{id}', [ScheduleController::class, 'toggle_availability']);
 });
 
 //BARBEIRO
-Route::get('/barbeiros-aprovados', [UsuarioController::class, 'ListarBarbeiroAprovado'])->middleware('auth:sanctum');
+Route::get('/barbers/approved', [UserController::class, 'list_approved_barbers'])->middleware('auth:sanctum');
 Route::middleware('auth:sanctum')->group(function() {
-    Route::prefix('barbearia/fotos')->group(function() {
-        Route::post('/', [UsuarioController::class, 'adicionarFoto']);
-        Route::get('/', [UsuarioController::class, 'listarFotos']);
-        Route::delete('/{id}', [UsuarioController::class, 'removerFoto']);
+    Route::prefix('barbers/photos')->group(function() {
+        Route::post('/', [UserController::class, 'add_photo']);
+        Route::get('/', [UserController::class, 'list_photos']);
+        Route::delete('/{id}', [UserController::class, 'remove_photo']);
     });
 });
 
 //AGEDAMENTO
-Route::get('/barbeiros/{id}/horarios', [HorarioBarbeariaController::class, 'listarHorarios'])->middleware('auth:sanctum');
-Route::post('/agendamentos/criar', [AgendamentoController::class, 'criar'])->middleware('auth:sanctum');
+Route::get('/barbers/{id}/schedules', [ScheduleController::class, 'list_schedules'])->middleware('auth:sanctum');
+Route::post('/appointments', [AppointmentController::class, 'store'])->middleware('auth:sanctum');
 
 //MEUS AGENDAMENTOS
-Route::get('/meus-agendamentos-usuario', [AgendamentoController::class, 'meusAgendamentos'])->middleware('auth:sanctum');
-Route::get('/meus-agendamentos-barbeiro', [AgendamentoController::class, 'agendamentosBarbeiro'])->middleware('auth:sanctum');
-Route::get('/meus-agendamentos-barbeiro', [AgendamentoController::class, 'agendamentosBarbeiro'])->middleware('auth:sanctum');
-Route::put('/agendamentos/{agendamento}/atualizar-status', [AgendamentoController::class, 'atualizarStatus'])->middleware('auth:sanctum');
+Route::get('/appointments/my', [AppointmentController::class, 'my_appointments'])->middleware('auth:sanctum');
+Route::get('/appointments/barber', [AppointmentController::class, 'barber_appointments'])->middleware('auth:sanctum');
+Route::put('/appointments/{appointment}/status', [AppointmentController::class, 'update_status'])->middleware('auth:sanctum');

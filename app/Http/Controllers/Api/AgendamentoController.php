@@ -7,28 +7,24 @@ use App\Models\Agendamento;
 use App\Models\HorarioBarbearia;
 use App\Models\Servico;
 use App\Models\User;
+use App\Http\Requests\CreateAppointmentRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AgendamentoController extends Controller
 {
-    public function criar(Request $request)
+    public function store(CreateAppointmentRequest $request)
     {
-        $request->validate([
-            'barbeiro_id' => 'required|integer',
-            'servico_id' => 'required|integer',
-            'horario_id' => 'required|integer',
-            'data' => 'required|date'
-        ]);
+        $data = $request->validated();
 
         // Busca o serviço para obter a duração
-        $servico = Servico::find($request->servico_id);
+    $servico = Servico::find($data['servico_id']);
         if (!$servico) {
             return response()->json(['message' => 'Serviço não encontrado'], 404);
         }
 
         // Busca o horário inicial selecionado
-        $horarioInicial = HorarioBarbearia::find($request->horario_id);
+    $horarioInicial = HorarioBarbearia::find($data['horario_id']);
         if (!$horarioInicial) {
             return response()->json(['message' => 'Horário inicial não encontrado'], 404);
         }
@@ -45,8 +41,8 @@ class AgendamentoController extends Controller
         // Para serviços mais longos, verifica os consecutivos
         else {
             // Pega todos os horários do barbeiro naquela data, ordenados por horário
-            $horariosDoDia = HorarioBarbearia::where('user_id', $request->barbeiro_id)
-                ->where('data', $request->data)
+            $horariosDoDia = HorarioBarbearia::where('user_id', $data['barbeiro_id'])
+                ->where('data', $data['data'])
                 ->orderBy('horario_inicio')
                 ->get();
 
@@ -96,10 +92,10 @@ class AgendamentoController extends Controller
         // Cria o agendamento (usa apenas o primeiro horário como referência)
         $agendamento = Agendamento::create([
             'user_id' => Auth::id(),
-            'barbeiro_id' => $request->barbeiro_id,
-            'servico_id' => $request->servico_id,
-            'horario_id' => $request->horario_id,
-            'data' => $request->data,
+            'barbeiro_id' => $data['barbeiro_id'],
+            'servico_id' => $data['servico_id'],
+            'horario_id' => $data['horario_id'],
+            'data' => $data['data'],
             'status' => 'A',
             'duracao_minutos' => $servico->duracao_minutos
         ]);
@@ -117,7 +113,7 @@ class AgendamentoController extends Controller
     }
 
     //AGENDAMENTOS usuarioS tipo U
-    public function meusAgendamentos(Request $request)
+    public function my_appointments(Request $request)
     {
         $user = Auth::user();
         $perPage = 10;
@@ -158,7 +154,7 @@ class AgendamentoController extends Controller
         ]);
     }
 
-    public function agendamentosBarbeiro(Request $request)
+    public function barber_appointments(Request $request)
     {
         $barbeiro = Auth::user();
 
@@ -200,7 +196,7 @@ class AgendamentoController extends Controller
         ]);
     }
 
-    public function atualizarStatus(Request $request, $agendamentoId)
+    public function update_status(Request $request, $agendamentoId)
     {
         $barbeiro = Auth::user();
 

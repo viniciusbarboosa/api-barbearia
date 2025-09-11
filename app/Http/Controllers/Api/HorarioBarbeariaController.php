@@ -5,23 +5,20 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Agendamento;
 use App\Models\HorarioBarbearia;
+use App\Http\Requests\CreateScheduleRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class HorarioBarbeariaController extends Controller
 {
-    public function criarHorarios(Request $request)
+    public function create_schedules(CreateScheduleRequest $request)
     {
-        $request->validate([
-            'data' => 'required|date|after_or_equal:today',
-            'horario_inicio_expediente' => 'required|date_format:H:i',
-            'horario_fim_expediente' => 'required|date_format:H:i|after:horario_inicio_expediente'
-        ]);
+        $data = $request->validated();
 
-        $data = $request->data;
-        $inicioExpediente = Carbon::parse($request->horario_inicio_expediente);
-        $fimExpediente = Carbon::parse($request->horario_fim_expediente);
+    $data = $data['data'];
+    $inicioExpediente = Carbon::parse($request->horario_inicio_expediente);
+    $fimExpediente = Carbon::parse($request->horario_fim_expediente);
         $user_id = Auth::id();
 
         HorarioBarbearia::where('user_id', $user_id)
@@ -49,11 +46,9 @@ class HorarioBarbeariaController extends Controller
         ], 201);
     }
 
-    public function listarPorData(Request $request)
+    public function list_by_date(Request $request)
     {
-        $request->validate([
-            'data' => 'required|date'
-        ]);
+        $request->validate(['data' => 'required|date']);
 
         $horarios = HorarioBarbearia::where('user_id', Auth::id())
             ->where('data', $request->data)
@@ -63,11 +58,9 @@ class HorarioBarbeariaController extends Controller
         return response()->json($horarios);
     }
 
-    public function toggleDisponibilidade(Request $request, $id)
+    public function toggle_availability(Request $request, $id)
     {
-        $request->validate([
-            'disponivel' => 'required|boolean'
-        ]);
+        $request->validate(['disponivel' => 'required|boolean']);
 
         $horario = HorarioBarbearia::where('user_id', Auth::id())
             ->findOrFail($id);
@@ -79,7 +72,7 @@ class HorarioBarbeariaController extends Controller
 
     //PART DO HORARIO DO AGENDAMENTO
     // REGRAS
-    public function listarHorarios($barbeiroId, Request $request)
+    public function list_schedules($barbeiroId, Request $request)
     {
         try {
             $request->validate([

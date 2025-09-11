@@ -6,27 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Models\BarbeariaFoto;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Requests\FotoRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\FotoRequest;
 
-class UsuarioController extends Controller
+class UserController extends Controller
 {
-    //BARBEIRO
     public function list_approved_barbers()
     {
-        $barbeiros = User::where('tipo_usuario', 'B')
+        $barbers = User::where('tipo_usuario', 'B')
             ->where('aprovado', 1)
             ->orderBy('name')
             ->with('fotosBarbearia')
             ->get(['id', 'name', 'email', 'foto_perfil']);
 
-        return response()->json([
-            'success' => true,
-            'data' => $barbeiros
-        ]);
+        return response()->json(['success' => true, 'data' => $barbers]);
     }
 
     public function add_photo(FotoRequest $request)
@@ -62,18 +58,10 @@ class UsuarioController extends Controller
                 'descricao' => $data['descricao'] ?? null
             ]);
 
-            return response()->json([
-                'success' => true,
-                'foto_url' => Storage::disk('public')->url($path),
-                'foto_id' => $foto->id,
-                'message' => 'Foto adicionada com sucesso!'
-            ]);
+            return response()->json(['success' => true, 'foto_url' => Storage::disk('public')->url($path), 'foto_id' => $foto->id, 'message' => 'Foto adicionada com sucesso!']);
         } catch (\Exception $e) {
             Log::error('Erro ao adicionar foto: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Erro ao processar imagem: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'error' => 'Erro ao processar imagem: ' . $e->getMessage()], 500);
         }
     }
 
@@ -86,24 +74,18 @@ class UsuarioController extends Controller
                 return response()->json(['error' => 'Acesso não autorizado'], 403);
             }
 
-            $fotos = $user->fotosBarbearia()->get();
+            $photos = $user->fotosBarbearia()->get();
 
-            return response()->json([
-                'success' => true,
-                'fotos' => $fotos->map(function ($foto) {
-                    return [
-                        'id' => $foto->id,
-                        'foto_path' => $foto->foto_path,
-                        'created_at' => $foto->created_at,
-                        'url' => asset('storage/barbearia_fotos/' . $foto->foto_path)
-                    ];
-                })
-            ]);
+            return response()->json(['success' => true, 'fotos' => $photos->map(function ($foto) {
+                return [
+                    'id' => $foto->id,
+                    'foto_path' => $foto->foto_path,
+                    'created_at' => $foto->created_at,
+                    'url' => asset('storage/barbearia_fotos/' . $foto->foto_path)
+                ];
+            })]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Erro ao buscar fotos: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'error' => 'Erro ao buscar fotos: ' . $e->getMessage()], 500);
         }
     }
 
@@ -121,29 +103,20 @@ class UsuarioController extends Controller
                 return response()->json(['error' => 'Foto não encontrada ou não pertence ao usuário'], 404);
             }
 
-            // Remove o arquivo físico
             $path = 'barbearia_fotos/' . $foto->foto_path;
             if (Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->delete($path);
             }
 
-            // Remove o registro do banco
             $foto->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Foto removida com sucesso!'
-            ]);
+            return response()->json(['success' => true, 'message' => 'Foto removida com sucesso!']);
         } catch (\Exception $e) {
             Log::error('Erro ao remover foto: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Erro ao remover foto: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'error' => 'Erro ao remover foto: ' . $e->getMessage()], 500);
         }
     }
 
-    //PERFIL
     public function update_photo(FotoRequest $request)
     {
         try {
@@ -155,14 +128,12 @@ class UsuarioController extends Controller
                 return response()->json(['error' => 'Usuário não autenticado'], 401);
             }
 
-            // Processamento da imagem
             $imageData = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $data['foto']));
 
             if (!$imageData) {
                 throw new \Exception('Dados de imagem inválidos');
             }
 
-            // Determinar o tipo da imagem
             $f = finfo_open();
             $mimeType = finfo_buffer($f, $imageData, FILEINFO_MIME_TYPE);
             finfo_close($f);
@@ -171,10 +142,8 @@ class UsuarioController extends Controller
             $fileName = 'user_' . $user->id . '_' . Str::random(10) . '.' . $extension;
             $path = 'fotos_perfil/' . $fileName;
 
-            // Salva a nova imagem
             Storage::disk('public')->put($path, $imageData);
 
-            // Remove a imagem antiga se existir
             if ($user->foto_perfil) {
                 $oldPath = 'fotos_perfil/' . $user->foto_perfil;
                 if (Storage::disk('public')->exists($oldPath)) {
@@ -182,21 +151,13 @@ class UsuarioController extends Controller
                 }
             }
 
-            // Atualiza o modelo do usuário
             $user->foto_perfil = $fileName;
             $user->save();
 
-            return response()->json([
-                'success' => true,
-                'foto_url' => Storage::disk('public')->url($path),
-                'message' => 'Foto atualizada com sucesso!'
-            ]);
+            return response()->json(['success' => true, 'foto_url' => Storage::disk('public')->url($path), 'message' => 'Foto atualizada com sucesso!']);
         } catch (\Exception $e) {
             Log::error('Erro ao atualizar foto: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Erro ao processar imagem: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'error' => 'Erro ao processar imagem: ' . $e->getMessage()], 500);
         }
     }
 
@@ -205,24 +166,15 @@ class UsuarioController extends Controller
         $user = User::find(Auth::id());
 
         if (!$user || !$user->foto_perfil) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Usuário não possui foto de perfil'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Usuário não possui foto de perfil'], 404);
         }
 
         $path = 'fotos_perfil/' . $user->foto_perfil;
 
         if (!Storage::disk('public')->exists($path)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Foto não encontrada no servidor'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Foto não encontrada no servidor'], 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'foto_url' => Storage::disk('public')->url($path)
-        ]);
+        return response()->json(['success' => true, 'foto_url' => Storage::disk('public')->url($path)]);
     }
 }
