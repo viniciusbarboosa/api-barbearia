@@ -11,7 +11,7 @@ class BarberPhoto extends Model
 
     protected $fillable = [
         'user_id',
-        'foto_path'
+    'photo_path'
     ];
 
     public function user()

@@ -14,10 +14,14 @@ class UpdateServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome' => 'string|max:100',
-            'preco' => 'numeric|min:0.01',
+            'name' => 'sometimes|string|max:100',
+            'nome' => 'sometimes|string|max:100',
+            'price' => 'sometimes|numeric|min:0.01',
+            'preco' => 'sometimes|numeric|min:0.01',
+            'duration_minutes' => 'nullable|integer|min:1',
             'duracao_minutos' => 'nullable|integer|min:1',
-            'ativo' => 'boolean'
+            'active' => 'sometimes|boolean',
+            'ativo' => 'sometimes|boolean'
         ];
     }
     public function messages(): array
@@ -33,9 +37,13 @@ class UpdateServiceRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'name' => 'name',
             'nome' => 'nome',
+            'price' => 'price',
             'preco' => 'preço',
+            'duration_minutes' => 'duração em minutos',
             'duracao_minutos' => 'duração em minutos',
+            'active' => 'active',
             'ativo' => 'ativo'
         ];
     }

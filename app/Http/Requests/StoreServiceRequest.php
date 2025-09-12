@@ -14,9 +14,13 @@ class StoreServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome' => 'required|string|max:100',
-            'preco' => 'required|numeric|min:0.01',
-            'duracao_minutos' => 'nullable|integer|min:1'
+                // Accept either English or Portuguese keys for backward compatibility
+                'name' => 'required_without:nome|string|max:100',
+                'nome' => 'required_without:name|string|max:100',
+                'price' => 'required_without:preco|numeric|min:0.01',
+                'preco' => 'required_without:price|numeric|min:0.01',
+                'duration_minutes' => 'nullable|integer|min:1',
+                'duracao_minutos' => 'nullable|integer|min:1'
         ];
     }
     public function messages(): array
@@ -33,9 +37,12 @@ class StoreServiceRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'nome' => 'nome',
-            'preco' => 'preço',
-            'duracao_minutos' => 'duração em minutos'
+                'name' => 'name',
+                'nome' => 'nome',
+                'price' => 'price',
+                'preco' => 'preço',
+                'duration_minutes' => 'duration in minutes',
+                'duracao_minutos' => 'duração em minutos'
         ];
     }
 }

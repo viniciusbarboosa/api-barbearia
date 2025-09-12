@@ -34,15 +34,15 @@ class ServiceController extends Controller
         ])->validate();
 
     $services = Service::where('user_id', $request->user_id)
-            ->where('ativo', true)
-            ->orderBy('nome')
+            ->where('active', true)
+            ->orderBy('name')
             ->get()
             ->map(function ($service) {
                 return [
                     'id' => $service->id,
-                    'nome' => $service->nome,
-                    'preco' => (float)$service->preco,
-                    'duracao_minutos' => $service->duracao_minutos
+                    'name' => $service->name,
+                    'price' => (float)$service->price,
+                    'duration_minutes' => $service->duration_minutes
                 ];
             });
 
@@ -56,10 +56,10 @@ class ServiceController extends Controller
 
     $service = Service::create([
             'user_id' => $user->id,
-            'nome' => $data['nome'],
-            'preco' => $data['preco'],
-            'duracao_minutos' => $data['duracao_minutos'] ?? 30,
-            'ativo' => true
+            'name' => $data['name'] ?? $data['nome'] ?? null,
+            'price' => $data['price'] ?? $data['preco'] ?? null,
+            'duration_minutes' => $data['duration_minutes'] ?? $data['duracao_minutos'] ?? 30,
+            'active' => true
         ]);
 
         return response()->json($service, 201);
@@ -78,7 +78,7 @@ class ServiceController extends Controller
     {
         $user = Auth::user();
     $service = Service::where('user_id', $user->id)->findOrFail($id);
-        $service->ativo = !$service->ativo;
+    $service->active = !$service->active;
         $service->save();
         return response()->json($service);
     }

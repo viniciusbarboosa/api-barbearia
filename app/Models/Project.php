@@ -12,12 +12,12 @@ class Project extends Model
     protected $table = 'project';
 
     protected $fillable = [
-        'nome',
-        'ativo',
+    'name',
+    'active',
         'link',
     ];
 
     protected $casts = [
-        'ativo' => 'string',
+    'active' => 'string',
     ];
 }

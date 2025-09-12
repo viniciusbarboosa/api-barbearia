@@ -18,8 +18,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->enum('user_type', ['B','U'])->default('U');
             $table->string('password');
-            $table->boolean('aprovado')->default(false); 
-            $table->string('foto_perfil')->nullable();
+            $table->boolean('approved')->default(false);
+            $table->string('profile_photo')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

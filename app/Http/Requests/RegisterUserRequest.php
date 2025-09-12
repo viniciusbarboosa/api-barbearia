@@ -37,10 +37,10 @@ class RegisterUserRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name' => 'nome',
+            'name' => 'name',
             'email' => 'e-mail',
-            'password' => 'senha',
-            'user_type' => 'tipo de usuário'
+            'password' => 'password',
+            'user_type' => 'user type'
         ];
     }
 }

@@ -11,11 +11,11 @@ return new class extends Migration
     Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->string('nome', 100);
-            $table->decimal('preco', 8, 2);
-            $table->text('descricao')->nullable();
-            $table->integer('duracao_minutos')->default(30);
-            $table->boolean('ativo')->default(true);
+            $table->string('name', 100);
+            $table->decimal('price', 8, 2);
+            $table->text('description')->nullable();
+            $table->integer('duration_minutes')->default(30);
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
     }

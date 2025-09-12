@@ -14,7 +14,7 @@ return new class extends Migration
     Schema::create('barber_photos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('foto_path');
+            $table->string('photo_path');
             $table->timestamps();
         });
     }

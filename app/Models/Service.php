@@ -14,11 +14,11 @@ class Service extends Model
      */
     protected $fillable = [
         'user_id',
-        'nome',
-        'preco',
-        'descricao',
-        'duracao_minutos',
-        'ativo'         
+    'name',
+    'price',
+    'description',
+    'duration_minutes',
+    'active'
     ];
 
     /**
@@ -33,9 +33,9 @@ class Service extends Model
     /**
      * Escopo para filtrar serviços ativos
      */
-    public function scopeAtivos($query)
+    public function scopeActive($query)
     {
-        return $query->where('ativo', true);
+        return $query->where('active', true);
     }
 
     /**

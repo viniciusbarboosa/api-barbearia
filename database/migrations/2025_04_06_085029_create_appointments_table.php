@@ -14,10 +14,10 @@ return new class extends Migration
     Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->integer('barbeiro_id');
-            $table->integer('servico_id');
-            $table->integer('horario_id');
-            $table->date('data');
+            $table->integer('barber_id');
+            $table->integer('service_id');
+            $table->integer('schedule_id');
+            $table->date('date');
             $table->enum('status', ['A', 'C'])->default('A');
             $table->timestamps();
         });

@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class BarberSchedule extends Model
 {
     protected $fillable = [
-        'user_id',
-        'data',
-        'horario_inicio',
-        'horario_fim',
-        'disponivel'
+    'user_id',
+    'date',
+    'start_time',
+    'end_time',
+    'available'
     ];
 }

@@ -16,12 +16,12 @@ class ScheduleController extends Controller
     {
         $data = $request->validated();
 
-        $date = $data['data'];
-        $start = Carbon::parse($request->horario_inicio_expediente);
-        $end = Carbon::parse($request->horario_fim_expediente);
+            $date = $data['date'] ?? $data['data'];
+            $start = Carbon::parse($request->start_time ?? $request->horario_inicio_expediente);
+            $end = Carbon::parse($request->end_time ?? $request->horario_fim_expediente);
         $user_id = Auth::id();
 
-    BarberSchedule::where('user_id', $user_id)->where('data', $date)->delete();
+        BarberSchedule::where('user_id', $user_id)->where('date', $date)->delete();
 
         $created = [];
         $current = $start->copy();
@@ -29,28 +29,28 @@ class ScheduleController extends Controller
         while ($current <= $end) {
             $horario = BarberSchedule::create([
                 'user_id' => $user_id,
-                'data' => $date,
-                'horario_inicio' => $current->format('H:i:s'),
-                'horario_fim' => $current->addMinutes(15)->format('H:i:s'),
-                'disponivel' => true
+            'date' => $date,
+            'start_time' => $current->format('H:i:s'),
+            'end_time' => $current->addMinutes(15)->format('H:i:s'),
+            'available' => true
             ]);
 
             $created[] = $horario;
         }
 
-        return response()->json(['message' => 'Horários criados com sucesso', 'horarios' => $created], 201);
+        return response()->json(['message' => 'Schedules created successfully', 'schedules' => $created], 201);
     }
 
     public function list_by_date(Request $request)
     {
-        \Illuminate\Support\Facades\Validator::make($request->all(), ['data' => 'required|date'], [
+    \Illuminate\Support\Facades\Validator::make($request->all(), ['date' => 'required|date'], [
             'required' => 'O campo :attribute é obrigatório.',
             'date' => 'O campo :attribute deve ser uma data válida.'
         ], [
-            'data' => 'data'
+        'date' => 'date'
         ])->validate();
 
-    $schedules = BarberSchedule::where('user_id', Auth::id())->where('data', $request->data)->orderBy('horario_inicio')->get();
+        $schedules = BarberSchedule::where('user_id', Auth::id())->where('date', $request->date ?? $request->data)->orderBy('start_time')->get();
 
         return response()->json($schedules);
     }
@@ -61,11 +61,11 @@ class ScheduleController extends Controller
             'required' => 'O campo :attribute é obrigatório.',
             'boolean' => 'O campo :attribute deve ser verdadeiro ou falso.'
         ], [
-            'disponivel' => 'disponibilidade'
+                'available' => 'availability'
         ])->validate();
 
     $schedule = BarberSchedule::where('user_id', Auth::id())->findOrFail($id);
-        $schedule->update(['disponivel' => $request->disponivel]);
+            $schedule->update(['available' => $request->available]);
 
         return response()->json($schedule);
     }
@@ -73,29 +73,29 @@ class ScheduleController extends Controller
     public function list_schedules($barberId, Request $request)
     {
         try {
-            \Illuminate\Support\Facades\Validator::make($request->all(), ['data' => 'required|date_format:Y-m-d'], [
+            \Illuminate\Support\Facades\Validator::make($request->all(), ['date' => 'required|date_format:Y-m-d'], [
                 'required' => 'O campo :attribute é obrigatório.',
                 'date_format' => 'O campo :attribute deve ter o formato :format.'
             ], [
-                'data' => 'data'
+                    'date' => 'date'
             ])->validate();
 
-            $schedules = BarberSchedule::where('user_id', $barberId)->where('data', $request->data)->orderBy('horario_inicio')->get()->map(function ($schedule) {
-                $booked = Appointment::where('horario_id', $schedule->id)->where('data', $schedule->data)->exists();
+                $schedules = BarberSchedule::where('user_id', $barberId)->where('date', $request->date ?? $request->data)->orderBy('start_time')->get()->map(function ($schedule) {
+                    $booked = Appointment::where('schedule_id', $schedule->id)->where('date', $schedule->date)->exists();
 
                 return [
                     'id' => $schedule->id,
-                    'horario_inicio' => $schedule->horario_inicio,
-                    'horario_fim' => $schedule->horario_fim,
-                    'data' => $schedule->data,
-                    'disponivel' => $schedule->disponivel && !$booked,
-                    'agendado' => $booked
+                        'start_time' => $schedule->start_time,
+                        'end_time' => $schedule->end_time,
+                        'date' => $schedule->date,
+                        'available' => $schedule->available && !$booked,
+                        'booked' => $booked
                 ];
             });
 
             return response()->json($schedules);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Erro ao buscar horários', 'details' => $e->getMessage()], 500);
+                return response()->json(['error' => 'Error fetching schedules', 'details' => $e->getMessage()], 500);
         }
     }
 }

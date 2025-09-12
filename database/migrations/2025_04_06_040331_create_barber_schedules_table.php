@@ -14,10 +14,10 @@ return new class extends Migration
     Schema::create('barber_schedules', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->date('data');
-            $table->time('horario_inicio');
-            $table->time('horario_fim');
-            $table->boolean('disponivel')->default(true);
+            $table->date('date');
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->boolean('available')->default(true);
             $table->timestamps();
         });
     }

@@ -25,7 +25,7 @@ class AuthController extends Controller
                 'email' => $data['email'],
                 'user_type' => $data['user_type'],
                 'password' => Hash::make($data['password']),
-                'aprovado' => false
+                'approved' => false
             ]);
 
             return response()->json([

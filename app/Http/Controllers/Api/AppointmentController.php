@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Agendamento;
-use App\Models\HorarioBarbearia;
-use App\Models\Servico;
+use App\Models\Appointment;
+use App\Models\BarberSchedule;
+use App\Models\Service;
 use App\Models\User;
 use App\Http\Requests\CreateAppointmentRequest;
 use Illuminate\Http\Request;
@@ -17,24 +17,24 @@ class AppointmentController extends Controller
     {
         $data = $request->validated();
 
-        $servico = Servico::find($data['servico_id']);
+    $servico = Service::find($data['service_id'] ?? $data['servico_id']);
         if (!$servico) {
-            return response()->json(['message' => 'Serviço não encontrado'], 404);
+        return response()->json(['message' => 'Service not found'], 404);
         }
 
-        $initialSchedule = HorarioBarbearia::find($data['horario_id']);
+    $initialSchedule = BarberSchedule::find($data['schedule_id'] ?? $data['horario_id']);
         if (!$initialSchedule) {
-            return response()->json(['message' => 'Horário inicial não encontrado'], 404);
+        return response()->json(['message' => 'Initial schedule not found'], 404);
         }
 
-        $blocksNeeded = ceil($servico->duracao_minutos / 15);
+    $blocksNeeded = ceil($servico->duration_minutes / 15);
 
-        if ($blocksNeeded == 1) {
-            if (!$initialSchedule->disponivel) {
-                return response()->json(['message' => 'Horário já está ocupado'], 400);
+            if ($blocksNeeded == 1) {
+            if (!$initialSchedule->available) {
+                return response()->json(['message' => 'Schedule already booked'], 400);
             }
         } else {
-            $daySchedules = HorarioBarbearia::where('user_id', $data['barbeiro_id'])->where('data', $data['data'])->orderBy('horario_inicio')->get();
+            $daySchedules = BarberSchedule::where('user_id', $data['barber_id'] ?? $data['barbeiro_id'])->where('date', $data['date'] ?? $data['data'])->orderBy('start_time')->get();
 
             $startIndex = null;
             $schedulesToBook = [];
@@ -57,14 +57,14 @@ class AppointmentController extends Controller
                 }
 
                 $current = $daySchedules[$currentIndex];
-                if (!$current->disponivel) {
-                    return response()->json(['message' => 'Horário já está ocupado'], 400);
+                if (!$current->available) {
+                    return response()->json(['message' => 'Schedule already booked'], 400);
                 }
 
                 if ($i > 0) {
                     $prev = $daySchedules[$currentIndex - 1];
-                    if ($prev->horario_fim != $current->horario_inicio) {
-                        return response()->json(['message' => 'Horários não são consecutivos'], 400);
+                    if ($prev->end_time != $current->start_time) {
+                        return response()->json(['message' => 'Schedules are not consecutive'], 400);
                     }
                 }
 
@@ -72,21 +72,21 @@ class AppointmentController extends Controller
             }
         }
 
-        $appointment = Agendamento::create([
+        $appointment = Appointment::create([
             'user_id' => Auth::id(),
-            'barbeiro_id' => $data['barbeiro_id'],
-            'servico_id' => $data['servico_id'],
-            'horario_id' => $data['horario_id'],
-            'data' => $data['data'],
+            'barber_id' => $data['barber_id'] ?? $data['barbeiro_id'],
+            'service_id' => $data['service_id'] ?? $data['servico_id'],
+            'schedule_id' => $data['schedule_id'] ?? $data['horario_id'],
+            'date' => $data['date'] ?? $data['data'],
             'status' => 'A',
-            'duracao_minutos' => $servico->duracao_minutos
+            'duration_minutes' => $servico->duration_minutes
         ]);
 
         if ($blocksNeeded == 1) {
-            $initialSchedule->update(['disponivel' => false]);
+            $initialSchedule->update(['available' => false]);
         } else {
             foreach ($schedulesToBook as $s) {
-                $s->update(['disponivel' => false]);
+                $s->update(['available' => false]);
             }
         }
 
@@ -98,30 +98,30 @@ class AppointmentController extends Controller
         $user = Auth::user();
         $perPage = 10;
         $page = $request->input('page', 1);
-        $date = $request->input('data', null);
+    $date = $request->input('data', null);
 
-        $query = Agendamento::where('agendamentos.user_id', $user->id)
-            ->join('users as barbeiro', 'agendamentos.barbeiro_id', '=', 'barbeiro.id')
-            ->join('servicos', 'agendamentos.servico_id', '=', 'servicos.id')
-            ->join('horario_barbearias', 'agendamentos.horario_id', '=', 'horario_barbearias.id')
+        $query = Appointment::where('appointments.user_id', $user->id)
+            ->join('users as barber', 'appointments.barber_id', '=', 'barber.id')
+            ->join('services', 'appointments.service_id', '=', 'services.id')
+            ->join('barber_schedules', 'appointments.schedule_id', '=', 'barber_schedules.id')
             ->select([
-                'agendamentos.id',
-                'agendamentos.data',
-                'agendamentos.status',
-                'barbeiro.name as barbeiro_nome',
-                'servicos.nome as servico_nome',
-                'servicos.preco as servico_preco',
-                'servicos.descricao as servico_descricao',
-                'servicos.duracao_minutos as servico_duracao',
-                'horario_barbearias.horario_inicio',
-                'horario_barbearias.horario_fim'
+                'appointments.id',
+                'appointments.date',
+                'appointments.status',
+                'barber.name as barber_name',
+                'services.name as service_name',
+                'services.price as service_price',
+                'services.description as service_description',
+                'services.duration_minutes as service_duration',
+                'barber_schedules.start_time',
+                'barber_schedules.end_time'
             ]);
 
         if ($date) {
-            $query->whereDate('agendamentos.data', $date);
+            $query->whereDate('appointments.date', $date);
         }
 
-        $appointments = $query->orderBy('agendamentos.data', 'desc')->orderBy('horario_barbearias.horario_inicio', 'asc')->paginate($perPage, ['*'], 'page', $page);
+    $appointments = $query->orderBy('appointments.date', 'desc')->orderBy('barber_schedules.start_time', 'asc')->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json(['success' => true, 'data' => $appointments->items(), 'current_page' => $appointments->currentPage(), 'last_page' => $appointments->lastPage(), 'total' => $appointments->total()]);
     }
@@ -134,28 +134,28 @@ class AppointmentController extends Controller
         $page = $request->input('page', 1);
         $date = $request->input('data', null);
 
-        $query = Agendamento::where('agendamentos.barbeiro_id', $barber->id)
-            ->join('users as cliente', 'agendamentos.user_id', '=', 'cliente.id')
-            ->join('servicos', 'agendamentos.servico_id', '=', 'servicos.id')
-            ->join('horario_barbearias', 'agendamentos.horario_id', '=', 'horario_barbearias.id')
+        $query = Appointment::where('appointments.barber_id', $barber->id)
+            ->join('users as client', 'appointments.user_id', '=', 'client.id')
+            ->join('services', 'appointments.service_id', '=', 'services.id')
+            ->join('barber_schedules', 'appointments.schedule_id', '=', 'barber_schedules.id')
             ->select([
-                'agendamentos.id',
-                'agendamentos.data',
-                'agendamentos.status',
-                'cliente.name as cliente_nome',
-                'servicos.nome as servico_nome',
-                'servicos.preco as servico_preco',
-                'servicos.descricao as servico_descricao',
-                'servicos.duracao_minutos as servico_duracao',
-                'horario_barbearias.horario_inicio',
-                'horario_barbearias.horario_fim'
+                'appointments.id',
+                'appointments.date',
+                'appointments.status',
+                'client.name as client_name',
+                'services.name as service_name',
+                'services.price as service_price',
+                'services.description as service_description',
+                'services.duration_minutes as service_duration',
+                'barber_schedules.start_time',
+                'barber_schedules.end_time'
             ]);
 
         if ($date) {
-            $query->whereDate('agendamentos.data', $date);
+            $query->whereDate('appointments.date', $date);
         }
 
-        $appointments = $query->orderBy('agendamentos.data', 'desc')->orderBy('horario_barbearias.horario_inicio', 'asc')->paginate($perPage, ['*'], 'page', $page);
+    $appointments = $query->orderBy('appointments.date', 'desc')->orderBy('barber_schedules.start_time', 'asc')->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json(['success' => true, 'data' => $appointments->items(), 'current_page' => $appointments->currentPage(), 'last_page' => $appointments->lastPage(), 'total' => $appointments->total()]);
     }
@@ -164,14 +164,14 @@ class AppointmentController extends Controller
     {
         $barber = Auth::user();
 
-        $appointment = Agendamento::where('id', $appointmentId)->where('barbeiro_id', $barber->id)->first();
+    $appointment = Appointment::where('id', $appointmentId)->where('barber_id', $barber->id)->first();
 
         if (!$appointment) {
             return response()->json(['success' => false, 'message' => 'Appointment not found or you do not have permission.'], 404);
         }
 
         if ($appointment->status != 'A') {
-            return response()->json(['success' => false, 'message' => 'This appointment cannot be changed because its status is not "Agendado".'], 400);
+            return response()->json(['success' => false, 'message' => 'This appointment cannot be changed because its status is not "Scheduled".'], 400);
         }
 
         $appointment->status = 'C';

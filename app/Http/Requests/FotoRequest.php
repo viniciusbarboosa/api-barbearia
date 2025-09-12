@@ -15,7 +15,8 @@ class FotoRequest extends FormRequest
     {
         return [
             'foto' => 'required|string',
-            'descricao' => 'nullable|string'
+            'descricao' => 'nullable|string',
+            'description' => 'nullable|string'
         ];
     }
     public function messages(): array
@@ -29,8 +30,9 @@ class FotoRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'foto' => 'foto',
-            'descricao' => 'descrição'
+            'foto' => 'photo',
+            'descricao' => 'description',
+            'description' => 'description'
         ];
     }
 }
