@@ -2,8 +2,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-    "build": "vite build",
-    "dev": "vite",
+    "build": "node -r ./vite-crypto-polyfill.cjs ./node_modules/.bin/vite build",
+    "dev": "node -r ./vite-crypto-polyfill.cjs ./node_modules/.bin/vite",
     "dev:poly": "node -r ./vite-crypto-polyfill.cjs ./node_modules/.bin/vite"
     },
     "devDependencies": {

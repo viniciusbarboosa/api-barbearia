@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redirecting to Laravel app</title>
+    <meta http-equiv="refresh" content="0; url=http://127.0.0.1:8000/">
+    <style>
+      body {font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:#0b1220; color:#e6edf3; display:flex; align-items:center; justify-content:center; height:100vh; margin:0}
+      .box{max-width:720px;padding:28px;border-radius:12px;background:rgba(255,255,255,0.03);box-shadow:0 10px 30px rgba(2,6,23,.6);}
+      a{color:#7ee3f7}
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <h1>Opening Laravel app</h1>
+      <p>Redirecting to <strong>http://127.0.0.1:8000/</strong>. If you are not redirected, click <a id="open" href="http://127.0.0.1:8000/">here</a>.</p>
+      <p>If your Laravel server runs on a different host/port, update this file or run Artisan serve on <code>127.0.0.1:8000</code>.</p>
+    </div>
+    <script>
+      // JS fallback redirect
+      setTimeout(() => {
+        try { window.location.href = 'http://127.0.0.1:8000/'; } catch(e){}
+      }, 50);
+    </script>
+  </body>
+</html>
