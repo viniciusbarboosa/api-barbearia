@@ -1,10 +1,12 @@
+// resources/js/app.js
+
 import './bootstrap';
 import { createApp } from 'vue';
-import Login from './components/Login.vue';
-import Home from './components/Home.vue';
+import App from './App.vue';
+import router from './router/index.js';
 
-const appDiv = document.getElementById('app');
-if (appDiv) {
-	const app = createApp(Home);
-	app.mount('#app');
-}
+const app = createApp(App);
+app.use(router);
+
+
+app.mount('#app');
