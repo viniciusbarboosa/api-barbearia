@@ -20,9 +20,19 @@ class UserController extends Controller
             ->where('approved', 1)
             ->orderBy('name')
             ->with('barberPhotos')
-            ->get(['id', 'name', 'email', 'profile_photo']);
+            ->paginate(16, ['id', 'name', 'email', 'profile_photo']);
 
-        return response()->json(['success' => true, 'data' => $barbers]);
+        return response()->json([
+            'success' => true,
+            'barbers' => $barbers->items(),
+            'pagination' => [
+                'current_page' => $barbers->currentPage(),
+                'last_page' => $barbers->lastPage(),
+                'per_page' => $barbers->perPage(),
+                'total' => $barbers->total(),
+                'has_more' => $barbers->hasMorePages()
+            ]
+        ]);
     }
 
     public function add_photo(FotoRequest $request)
