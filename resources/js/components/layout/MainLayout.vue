@@ -15,7 +15,7 @@
           <img class="object-cover w-12 h-12 sm:w-16 sm:h-16 rounded-full" src="https://i.pravatar.cc/150?u=tiago" alt="Foto do usuário">
           <div class="hidden sm:block text-left">
             <p class="text-base text-gray-300">Bem vindo,</p>
-            <p class="text-lg font-bold text-[#FF9000]">Vinicius Barbosa</p>
+            <p class="text-lg font-bold text-[#FF9000]">{{ user?.name }}</p>
           </div>
         </div>
         <button @click="logout" class="ml-2 sm:ml-4 md:ml-8 text-[#999591] hover:text-[#FF9000]">
@@ -32,12 +32,20 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 import logoUrl from '/resources/images/logo.png?url';
-
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
 
 const router = useRouter();
+const user = ref(null);
+
+onMounted(() => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    user.value = JSON.parse(storedUser);
+  }
+});
 
 async function logout() {
   try {
@@ -46,6 +54,7 @@ async function logout() {
     console.error("Erro ao fazer logout no backend, mas limpando localmente mesmo assim.", error);
   } finally {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
     //REMOVE GLOBAL INSTANCE CREGIRED AT LOGIN
     delete window.axios.defaults.headers.common['Authorization'];
 
