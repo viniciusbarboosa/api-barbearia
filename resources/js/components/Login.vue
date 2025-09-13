@@ -102,10 +102,10 @@
                             <div class="absolute inset-y-0 left-3 flex items-center text-gray-500 input-icon">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666360" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-3-3.87"/><path d="M4 21v-2a4 4 0 0 1 3-3.87"/><circle cx="12" cy="7" r="4"/></svg>
                             </div>
-                            <select v-model="register.role" class="w-full pl-10 pr-3 py-3 rounded-lg bg-[#241d26] text-gray-200 outline-none focus:ring-2 focus:ring-amber-500 login-input">
+                            <select v-model="register.user_type" class="w-full pl-10 pr-3 py-3 rounded-lg bg-[#241d26] text-gray-200 outline-none focus:ring-2 focus:ring-amber-500 login-input" required>
                                 <option value="">Selecione...</option>
-                                <option value="barber">Barbeiro</option>
-                                <option value="client">Cliente</option>
+                                <option value="B">Barbeiro</option>
+                                <option value="U">Cliente</option>
                             </select>
                         </label>
                         <label class="relative block input-label">
@@ -153,7 +153,8 @@
     const logoImage = logoUrl;
 
     const form = reactive({ email: '', password: '' });
-    const register = reactive({ role: '', name: '', email: '', password: '' });
+    // match backend expected fields: user_type ('B' for barber, 'U' for user)
+    const register = reactive({ user_type: '', name: '', email: '', password: '' });
     const mode = ref('login');
     const loadingRegister = ref(false);
     const loading = ref(false);
@@ -181,20 +182,46 @@
         loadingRegister.value = true;
         error.value = '';
         try {
-            // Ajuste o endpoint conforme backend real
-            const res = await api.post('/users/register', { ...register });
-            // Se quiser já logar após cadastro:
-            if (res.data?.token) {
-                localStorage.setItem('auth_token', res.data.token);
-                window.axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-                window.location.href = '/dashboard';
-            } else {
-                // Caso contrário volta para login
+            // Client-side validation (basic)
+            if (!register.user_type) {
+                throw new Error('Selecione o tipo de usuário');
+            }
+            if (!register.name || !register.name.trim()) {
+                throw new Error('Informe seu nome');
+            }
+            const emailRe = /^\S+@\S+\.\S+$/;
+            if (!emailRe.test(register.email)) {
+                throw new Error('Informe um e-mail válido');
+            }
+            if (!register.password || register.password.length < 8) {
+                throw new Error('A senha deve ter no mínimo 8 caracteres');
+            }
+
+            const payload = {
+                name: register.name,
+                email: register.email,
+                password: register.password,
+                user_type: register.user_type
+            };
+
+            const res = await api.post('/users/register', payload);
+            // Backend returns success + user (no token). If success, switch to login and prefill email.
+            if (res.data?.success) {
                 mode.value = 'login';
                 form.email = register.email;
+            } else {
+                throw new Error(res.data?.error || 'Erro ao cadastrar');
             }
         } catch (err) {
-            error.value = err.response?.data?.message || 'Erro ao cadastrar';
+            // Surface backend validation errors (Laravel format) when available
+            const backendErrors = err.response?.data?.errors;
+            if (backendErrors) {
+                // pick first error message
+                const firstField = Object.keys(backendErrors)[0];
+                error.value = backendErrors[firstField][0];
+            } else {
+                error.value = err.response?.data?.message || err.message || 'Erro ao cadastrar';
+            }
         } finally {
             loadingRegister.value = false;
         }
