@@ -6,7 +6,6 @@
       class="w-full grid grid-cols-1 md:grid-cols-2 gap-6 items-center transition-container"
       :class="{ 'mode-register': mode === 'register' }"
     >
-      <!-- left: card -->
       <div class="max-w-md w-full mx-auto">
         <div class="form-area relative login-area">
           <div class="mx-auto mb-6 text-center">
@@ -23,7 +22,6 @@
           >
             Faça seu login
           </h2>
-          <!-- LOGIN FORM -->
           <form
             @submit.prevent="submit"
             class="flex flex-col gap-4 form-panel form-login"
@@ -177,15 +175,13 @@
           >
             {{ error }}
           </p>
-
-          <!-- Registro image moved inside the login box so it can slide into the same area -->
+        </div>
+      </div>
           <img
             src="/resources/images/registro.png"
             alt="register-slide"
             class="left-slide-image"
           />
-        </div>
-      </div>
 
       <!-- right: image (hidden on small screens) -->
       <div
@@ -497,11 +493,9 @@ async function submitRegister() {
   pointer-events: none;
 }
 
-/* Logo shown above the register form */
 .register-logo {
   opacity: 0;
   transform: translateY(-6px);
-  /* increased delay to better sync with image/panel */
   transition: opacity 0.6s ease 0.4s,
     transform 0.7s cubic-bezier(0.22, 0.9, 0.3, 1) 0.4s;
 }
@@ -510,11 +504,9 @@ async function submitRegister() {
   transform: translateY(0);
 }
 
-/* Delay the register form content so it appears after the panel/image */
 .form-register {
   opacity: 0;
   transform: translateY(-8px);
-  /* longer duration and slightly larger delay to match image timing */
   transition: opacity 0.7s ease 0.6s,
     transform 0.9s cubic-bezier(0.22, 0.9, 0.3, 1) 0.6s;
   will-change: opacity, transform;
@@ -528,7 +520,6 @@ async function submitRegister() {
   font-family: "Roboto Slab", serif;
   font-weight: 500;
   font-size: 16px;
-  /* leading-trim removido (experimental e não suportado) */
   line-height: 100%;
   letter-spacing: 0%;
   text-align: center;
@@ -547,7 +538,6 @@ async function submitRegister() {
   font-family: "Roboto Slab", serif;
   font-weight: 400;
   font-size: 16px;
-  /* leading-trim removido (experimental e não suportado) */
   line-height: 100%;
   letter-spacing: 0%;
   text-align: center;
@@ -557,7 +547,6 @@ async function submitRegister() {
   color: #f4ede8;
 }
 
-/* Container to allow absolute positioning relative to the form area */
 .form-area {
   position: relative;
 }
@@ -572,7 +561,6 @@ async function submitRegister() {
   margin-right: auto;
 }
 
-/* Ensure the label that wraps input + icon is same width as input and centered */
 .input-label {
   width: 340px;
   margin-left: auto;
@@ -580,33 +568,27 @@ async function submitRegister() {
   display: block;
 }
 
-/* Icon inside label should be positioned relative to the label container */
 .input-icon {
   left: 12px;
-  /* small offset inside the 340px label */
   color: #666360;
   pointer-events: none;
   z-index: 10;
   position: absolute;
 }
 
-/* Slightly lower the icon for the second input (password) to visually center it */
 .input-label:nth-of-type(2) .input-icon {
   transform: translateY(2px);
 }
 
-/* Force SVGs to inherit color and be visible */
 .input-icon svg {
   display: block;
   width: 20px;
   height: 20px;
   color: inherit;
-  /* ensure strokes use current text color */
   stroke: currentColor !important;
   fill: none !important;
 }
 
-/* Also target paths/groups inside for extra safety */
 .input-icon svg path,
 .input-icon svg g {
   stroke: currentColor !important;
@@ -615,20 +597,16 @@ async function submitRegister() {
 
 .email-input {
   position: relative;
-  /* keep document flow, top offset via margin */
   margin-top: 0px;
-  /* aligns with form flow */
 }
 
 .password-input {
   position: relative;
   margin-top: 8px;
-  /* small gap from email input; adjust as needed */
 }
 
-/* Panels animation */
 .form-area {
-  min-height: 640px; /* reserve space for smooth swap */
+  min-height: 640px;
 }
 .form-panel {
   transition: opacity 0.5s ease, transform 0.6s ease;
@@ -639,7 +617,6 @@ async function submitRegister() {
   z-index: 2;
   transition: opacity 0.5s ease;
 }
-/* control login/register visibility via CSS so transitions run smoothly */
 .form-login {
   opacity: 1;
   transform: translateY(0);
@@ -681,14 +658,12 @@ async function submitRegister() {
   position: relative;
 }
 .mode-register .image-register-wrapper .image-side {
-  /* slide the image fully to the left inside its wrapper (wrapper has overflow:hidden) */
   transform: translateX(100%);
   opacity: 0.98;
   object-fit: cover;
-  z-index: 50; /* keep image above left column */
+  z-index: 50;
   position: relative;
 }
-/* Left slide-in image: match .image-side smoothness (transform + opacity, GPU accelerated) */
 .left-slide-image {
   position: fixed;
   left: 0;
@@ -696,7 +671,6 @@ async function submitRegister() {
   height: 100vh;
   object-fit: cover;
   z-index: 55;
-  /* start off-screen to the left using transform for smooth GPU animation */
   transform: translateX(-100vw);
   opacity: 0;
   transition: opacity 0.6s ease,
@@ -704,46 +678,43 @@ async function submitRegister() {
   will-change: transform, opacity;
 }
 .mode-register .left-slide-image {
-  /* slide into view */
   transform: translateX(0);
   opacity: 0.98;
 }
 .login-area {
   position: relative;
   z-index: 1;
-  transition: opacity 0.4s ease;
+  transition: transform 0.8s cubic-bezier(0.65, 0.05, 0.36, 1) 0s,
+    opacity 0.6s ease 0.8s;
+  will-change: transform, opacity;
+  transform: translateX(0);
 }
-/* Dim the login area but keep it visible under the image overlay */
+
 .mode-register .login-area {
   opacity: 0.55;
   pointer-events: none;
+  transform: translateX(40%);
 }
 .register-panel {
-  /* start off-screen to the left using absolute left positioning */
   position: absolute;
   left: -100%;
-  right: auto; /* ensure left controls placement */
+  right: auto;
   top: 0;
   backdrop-filter: blur(6px);
   opacity: 0;
-  /* add a brief delay before the left movement begins so it's not instantaneous
-           transition syntax lists: property duration timing-function delay */
   transition: left 0.9s cubic-bezier(0.22, 0.9, 0.3, 1) 0.35s,
     opacity 0.55s ease 0.05s;
-  /* hint the browser about what will change to improve rendering smoothness */
   will-change: left, opacity;
   backface-visibility: hidden;
-  /* promote to its own layer */
   transform: translateZ(0);
   z-index: 60;
 }
 .register-panel.active {
-  /* when activated, move to 25% from the left */
   left: 25%;
   right: auto;
   opacity: 1;
 }
-/* Mobile: image hidden, so ensure register panel fades cleanly */
+
 @media (max-width: 767px) {
   .form-register {
     transform: translateX(0);
