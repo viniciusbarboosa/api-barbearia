@@ -10,11 +10,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PasswordResetCode;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
     public function register(RegisterUserRequest $request)
-    {   
+    {
         Log::info('Dados recebidos:', $request->all());
 
         try {
@@ -36,6 +40,78 @@ class AuthController extends Controller
             Log::error('Erro ao criar usuário: ' . $e->getMessage());
             return response()->json(['success' => false, 'error' => 'Erro ao processar a requisição'], 500);
         }
+    }
+
+    /**
+     * Send a numeric code to the user's email to recover password.
+     */
+    public function sendResetCode(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'Se o e-mail existir, você receberá instruções em breve.'], 200);
+        }
+
+        // generate 6-digit numeric code
+        $code = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // store in password_reset_tokens table (upsert)
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => Hash::make($code), 'created_at' => Carbon::now()]
+        );
+
+        // send email (using configured mail driver). Use mailable with branding
+        try {
+            Mail::to($user->email)->send(new PasswordResetCode($code, $user->name));
+        } catch (\Exception $e) {
+            Log::error('Erro ao enviar e-mail de recuperação: ' . $e->getMessage());
+            // if mail fails, still return success message to avoid leaking existence
+        }
+
+        return response()->json(['message' => 'Se o e-mail existir, você receberá instruções em breve.'], 200);
+    }
+
+    /**
+     * Reset password using email, code and new password
+     */
+    public function resetWithCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required',
+            'password' => 'required|min:8|confirmed'
+        ]);
+
+        $record = DB::table('password_reset_tokens')->where('email', $request->email)->first();
+        if (!$record) {
+            return response()->json(['message' => 'Código inválido ou expirado.'], 400);
+        }
+
+        // check expiration (15 minutes)
+        $created = Carbon::parse($record->created_at);
+        if ($created->diffInMinutes(Carbon::now()) > 15) {
+            return response()->json(['message' => 'Código expirado. Solicite um novo código.'], 400);
+        }
+
+        if (!Hash::check($request->code, $record->token)) {
+            return response()->json(['message' => 'Código inválido.'], 400);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'Usuário não encontrado.'], 400);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        // delete token
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return response()->json(['message' => 'Senha atualizada com sucesso.'], 200);
     }
 
     public function login(LoginRequest $request)

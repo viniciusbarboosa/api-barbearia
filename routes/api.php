@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/users/register', [AuthController::class,'register']);
 Route::post('/users/login', [AuthController::class,'login']);
+// Password recovery
+Route::post('/users/password/forgot', [AuthController::class, 'sendResetCode']);
+Route::post('/users/password/reset', [AuthController::class, 'resetWithCode']);
 
 //USUARIO
 Route::middleware('auth:sanctum')->group(function () {

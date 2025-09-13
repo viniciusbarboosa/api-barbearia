@@ -127,6 +127,7 @@
                 href="#"
                 class="hover:underline forgot-link"
                 style="margin-bottom: 80px"
+                @click.prevent="openForgot = true"
                 >Esqueci minha senha</a
               >
 
@@ -175,6 +176,39 @@
           >
             {{ error }}
           </p>
+          <!-- Forgot password modal -->
+          <div v-if="openForgot" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div class="bg-[#2b2430] text-white rounded-lg p-6 w-full max-w-md">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Recuperar senha</h3>
+                <button @click="openForgot = false" class="text-gray-300">Fechar</button>
+              </div>
+
+              <div v-if="forgotStep === 1">
+                <label class="block mb-2">E-mail</label>
+                <input v-model="forgot.email" type="email" class="w-full p-2 rounded bg-[#241d26] text-white mb-3" />
+                <div class="flex gap-2">
+                  <button :disabled="forgotLoading" @click="sendForgotEmail" class="bg-amber-500 text-[#2b2430] px-4 py-2 rounded">Enviar código</button>
+                  <button @click="openForgot = false" class="text-gray-300 px-4 py-2">Cancelar</button>
+                </div>
+              </div>
+
+              <div v-else>
+                <label class="block mb-2">Código</label>
+                <input v-model="forgot.code" type="text" class="w-full p-2 rounded bg-[#241d26] text-white mb-3" />
+                <label class="block mb-2">Nova senha</label>
+                <input v-model="forgot.password" type="password" class="w-full p-2 rounded bg-[#241d26] text-white mb-3" />
+                <label class="block mb-2">Confirmar senha</label>
+                <input v-model="forgot.password_confirmation" type="password" class="w-full p-2 rounded bg-[#241d26] text-white mb-3" />
+                <div class="flex gap-2">
+                  <button :disabled="forgotLoading" @click="submitResetWithCode" class="bg-amber-500 text-[#2b2430] px-4 py-2 rounded">Redefinir senha</button>
+                  <button @click="openForgot = false" class="text-gray-300 px-4 py-2">Cancelar</button>
+                </div>
+              </div>
+
+              <p v-if="forgotMessage" class="mt-3 text-sm text-amber-100">{{ forgotMessage }}</p>
+            </div>
+          </div>
         </div>
       </div>
           <img
@@ -390,6 +424,11 @@ const mode = ref("login");
 const loadingRegister = ref(false);
 const loading = ref(false);
 const error = ref("");
+const openForgot = ref(false);
+const forgotStep = ref(1); // 1=request email, 2=enter code
+const forgot = reactive({ email: '', code: '', password: '', password_confirmation: '' });
+const forgotLoading = ref(false);
+const forgotMessage = ref('');
 
 async function submit() {
   loading.value = true;
@@ -406,6 +445,48 @@ async function submit() {
     error.value = err.response?.data?.message || "Erro ao efetuar login";
   } finally {
     loading.value = false;
+  }
+}
+
+async function sendForgotEmail() {
+  forgotLoading.value = true;
+  forgotMessage.value = '';
+  try {
+    await api.post('/users/password/forgot', { email: forgot.email });
+    forgotMessage.value = 'Se o e-mail existir, um código foi enviado.';
+    forgotStep.value = 2;
+  } catch (err) {
+    forgotMessage.value = err.response?.data?.message || 'Erro ao solicitar o código.';
+  } finally {
+    forgotLoading.value = false;
+  }
+}
+
+async function submitResetWithCode() {
+  forgotLoading.value = true;
+  forgotMessage.value = '';
+  try {
+    const payload = {
+      email: forgot.email,
+      code: forgot.code,
+      password: forgot.password,
+      password_confirmation: forgot.password_confirmation
+    };
+    const res = await api.post('/users/password/reset', payload);
+    forgotMessage.value = res.data?.message || 'Senha atualizada com sucesso.';
+    // after success, close modal and prefill email
+    openForgot.value = false;
+    form.email = forgot.email;
+    // reset local state
+    forgot.email = '';
+    forgot.code = '';
+    forgot.password = '';
+    forgot.password_confirmation = '';
+    forgotStep.value = 1;
+  } catch (err) {
+    forgotMessage.value = err.response?.data?.message || 'Erro ao resetar a senha.';
+  } finally {
+    forgotLoading.value = false;
   }
 }
 
