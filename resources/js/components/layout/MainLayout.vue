@@ -32,5 +32,5 @@
 </template>
 
 <script setup>
-import logoUrl from '../../assets/imgs/logo.png';
+import logoUrl from '/resources/images/logo.png?url';
 </script>
