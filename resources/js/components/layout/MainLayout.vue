@@ -18,7 +18,7 @@
             <p class="text-lg font-bold text-[#FF9000]">Vinicius Barbosa</p>
           </div>
         </div>
-        <button class="ml-2 sm:ml-4 md:ml-8 text-[#999591] hover:text-[#FF9000]">
+        <button @click="logout" class="ml-2 sm:ml-4 md:ml-8 text-[#999591] hover:text-[#FF9000]">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" />
           </svg>
@@ -33,4 +33,23 @@
 
 <script setup>
 import logoUrl from '/resources/images/logo.png?url';
+
+import { useRouter } from 'vue-router';
+import api from '../../services/api';
+
+const router = useRouter();
+
+async function logout() {
+  try {
+    await api.post('/users/logout');
+  } catch (error) {
+    console.error("Erro ao fazer logout no backend, mas limpando localmente mesmo assim.", error);
+  } finally {
+    localStorage.removeItem('auth_token');
+    //REMOVE GLOBAL INSTANCE CREGIRED AT LOGIN
+    delete window.axios.defaults.headers.common['Authorization'];
+
+    router.push('/login');
+  }
+}
 </script>
