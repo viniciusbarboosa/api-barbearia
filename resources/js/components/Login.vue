@@ -468,11 +468,20 @@ async function submit() {
   try {
     const res = await api.post("/users/login", { ...form });
     const token = res.data.token;
+    const user = res.data.user;
+
     if (token) {
       localStorage.setItem("auth_token", token);
+
+       if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+
       window.axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
-    window.location.href = "/dashboard";
+
+    window.location.href = "/";
+
   } catch (err) {
     error.value = err.response?.data?.message || "Erro ao efetuar login";
   } finally {
