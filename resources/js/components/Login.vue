@@ -17,15 +17,17 @@
           </div>
 
           <h2
+            v-if="mode === 'login'"
             class="text-white text-center mb-6 login-title"
             style="margin-top: 80px"
           >
             Faça seu login
           </h2>
           <form
+            v-if="mode === 'login'"
             @submit.prevent="submit"
             class="flex flex-col gap-4 form-panel form-login"
-            :aria-hidden="mode === 'register'"
+            :aria-hidden="mode !== 'login'"
           >
             <label class="relative block input-label">
               <span class="sr-only">E-mail</span>
@@ -127,7 +129,7 @@
                 href="#"
                 class="hover:underline forgot-link"
                 style="margin-bottom: 80px"
-                @click.prevent="openForgot = true"
+                @click.prevent="(forgotStep = 1, forgotMessage = '', mode = 'forgot')"
                 >Esqueci minha senha</a
               >
 
@@ -170,45 +172,76 @@
             </div>
           </form>
 
-          <p
-            v-if="error && mode === 'login'"
-            class="text-sm text-red-400 mt-4 text-center"
+          <p v-if="error && mode === 'login'" class="text-sm text-red-400 mt-4 text-center">{{ error }}</p>
+
+          <!-- Forgot password inline form: replaces login form -->
+          <form
+            v-if="mode === 'forgot'"
+            class="flex flex-col gap-4 form-panel form-forgot"
+            @submit.prevent="forgotStep === 1 ? sendForgotEmail() : submitResetWithCode()"
           >
-            {{ error }}
-          </p>
-          <!-- Forgot password modal -->
-          <div v-if="openForgot" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-            <div class="bg-[#2b2430] text-white rounded-lg p-6 w-full max-w-md">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Recuperar senha</h3>
-                <button @click="openForgot = false" class="text-gray-300">Fechar</button>
-              </div>
+            <h2 class="text-white text-center mb-2 login-title" style="margin-top: 80px">
+              Recuperar senha
+            </h2>
 
-              <div v-if="forgotStep === 1">
-                <label class="block mb-2">E-mail</label>
-                <input v-model="forgot.email" type="email" class="w-full p-2 rounded bg-[#241d26] text-white mb-3" />
-                <div class="flex gap-2">
-                  <button :disabled="forgotLoading" @click="sendForgotEmail" class="bg-amber-500 text-[#2b2430] px-4 py-2 rounded">Enviar código</button>
-                  <button @click="openForgot = false" class="text-gray-300 px-4 py-2">Cancelar</button>
+            <template v-if="forgotStep === 1">
+              <label class="relative block input-label">
+                <span class="sr-only">E-mail</span>
+                <div class="absolute inset-y-0 left-3 flex items-center text-blue-500 input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="18" viewBox="0 0 20 18" fill="none">
+                    <path d="M3.6 2.9519H16.4C17.28 2.9519 18 3.6323 18 4.4639V13.5359C18 14.3675 17.28 15.0479 16.4 15.0479H3.6C2.72 15.0479 2 14.3675 2 13.5359V4.4639C2 3.6323 2.72 2.9519 3.6 2.9519Z" stroke="#666360" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M18 5.04001L10 10.08L2 5.04001" stroke="#666360" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
                 </div>
-              </div>
+                <input v-model="forgot.email" type="email" placeholder="E-mail" class="w-full pl-10 pr-3 py-3 rounded-lg bg-[#241d26] text-gray-200 placeholder-gray-500 outline-none focus:ring-2 focus:ring-amber-500 login-input email-input" required />
+              </label>
 
-              <div v-else>
-                <label class="block mb-2">Código</label>
-                <input v-model="forgot.code" type="text" class="w-full p-2 rounded bg-[#241d26] text-white mb-3" />
-                <label class="block mb-2">Nova senha</label>
-                <input v-model="forgot.password" type="password" class="w-full p-2 rounded bg-[#241d26] text-white mb-3" />
-                <label class="block mb-2">Confirmar senha</label>
-                <input v-model="forgot.password_confirmation" type="password" class="w-full p-2 rounded bg-[#241d26] text-white mb-3" />
-                <div class="flex gap-2">
-                  <button :disabled="forgotLoading" @click="submitResetWithCode" class="bg-amber-500 text-[#2b2430] px-4 py-2 rounded">Redefinir senha</button>
-                  <button @click="openForgot = false" class="text-gray-300 px-4 py-2">Cancelar</button>
+              <button :disabled="forgotLoading" class="mt-3 bg-amber-500 text-[#2b2430] login-button py-3 rounded-lg shadow-md">
+                Enviar código
+              </button>
+              <button type="button" @click="mode = 'login'" class="text-sm text-gray-300 hover:underline">Voltar para login</button>
+            </template>
+
+            <template v-else>
+              <label class="relative block input-label">
+                <span class="sr-only">Código</span>
+                <div class="absolute inset-y-0 left-3 flex items-center text-gray-500 input-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666360" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3 3" />
+                  </svg>
                 </div>
-              </div>
+                <input v-model="forgot.code" type="text" placeholder="Código de verificação" class="w-full pl-10 pr-3 py-3 rounded-lg bg-[#241d26] text-gray-200 placeholder-gray-500 outline-none focus:ring-2 focus:ring-amber-500 login-input" required />
+              </label>
 
-              <p v-if="forgotMessage" class="mt-3 text-sm text-amber-100">{{ forgotMessage }}</p>
-            </div>
-          </div>
+              <label class="relative block input-label">
+                <span class="sr-only">Nova senha</span>
+                <div class="absolute inset-y-0 left-3 flex items-center text-gray-500 input-icon">
+                  <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.4444 8.17145H4.55556C3.69645 8.17145 3 8.90407 3 9.80781V15.5351C3 16.4388 3.69645 17.1714 4.55556 17.1714H15.4444C16.3036 17.1714 17 16.4388 17 15.5351V9.80781C17 8.90407 16.3036 8.17145 15.4444 8.17145Z" stroke="#666360" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M6 8.17144V4.97144C6 3.91057 6.42143 2.89315 7.17157 2.14301C7.92172 1.39286 8.93913 0.971436 10 0.971436C11.0609 0.971436 12.0783 1.39286 12.8284 2.14301C13.5786 2.89315 14 3.91057 14 4.97144V8.17144" stroke="#666360" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+                <input v-model="forgot.password" type="password" placeholder="Nova senha" class="w-full pl-10 pr-3 py-3 rounded-lg bg-[#241d26] text-gray-200 placeholder-gray-500 outline-none focus:ring-2 focus:ring-amber-500 login-input" required />
+              </label>
+
+              <label class="relative block input-label">
+                <span class="sr-only">Confirmar senha</span>
+                <div class="absolute inset-y-0 left-3 flex items-center text-gray-500 input-icon">
+                  <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.4444 8.17145H4.55556C3.69645 8.17145 3 8.90407 3 9.80781V15.5351C3 16.4388 3.69645 17.1714 4.55556 17.1714H15.4444C16.3036 17.1714 17 16.4388 17 15.5351V9.80781C17 8.90407 16.3036 8.17145 15.4444 8.17145Z" stroke="#666360" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M6 8.17144V4.97144C6 3.91057 6.42143 2.89315 7.17157 2.14301C7.92172 1.39286 8.93913 0.971436 10 0.971436C11.0609 0.971436 12.0783 1.39286 12.8284 2.14301C13.5786 2.89315 14 3.91057 14 4.97144V8.17144" stroke="#666360" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+                <input v-model="forgot.password_confirmation" type="password" placeholder="Confirmar senha" class="w-full pl-10 pr-3 py-3 rounded-lg bg-[#241d26] text-gray-200 placeholder-gray-500 outline-none focus:ring-2 focus:ring-amber-500 login-input" required />
+              </label>
+
+              <button :disabled="forgotLoading" class="mt-3 bg-amber-500 text-[#2b2430] login-button py-3 rounded-lg shadow-md">Redefinir senha</button>
+              <button type="button" @click="mode = 'login'" class="text-sm text-gray-300 hover:underline">Voltar para login</button>
+            </template>
+
+            <p v-if="forgotMessage" class="text-sm text-amber-100 text-center">{{ forgotMessage }}</p>
+          </form>
         </div>
       </div>
           <img
@@ -424,7 +457,6 @@ const mode = ref("login");
 const loadingRegister = ref(false);
 const loading = ref(false);
 const error = ref("");
-const openForgot = ref(false);
 const forgotStep = ref(1); // 1=request email, 2=enter code
 const forgot = reactive({ email: '', code: '', password: '', password_confirmation: '' });
 const forgotLoading = ref(false);
@@ -474,8 +506,8 @@ async function submitResetWithCode() {
     };
     const res = await api.post('/users/password/reset', payload);
     forgotMessage.value = res.data?.message || 'Senha atualizada com sucesso.';
-    // after success, close modal and prefill email
-    openForgot.value = false;
+  // after success, go back to login and prefill email
+  mode.value = 'login';
     form.email = forgot.email;
     // reset local state
     forgot.email = '';
