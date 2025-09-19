@@ -117,9 +117,17 @@
 
             <button
               :disabled="loading"
-              class="mt-3 bg-amber-500 text-[#2b2430] login-button py-3 rounded-lg shadow-md"
+              :aria-busy="loading ? 'true' : 'false'"
+              class="mt-3 bg-amber-500 text-[#2b2430] login-button py-3 rounded-lg shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Entrar
+              <span v-if="loading" class="inline-flex items-center gap-2">
+                <svg class="animate-spin h-5 w-5 text-[#2b2430]" viewBox="0 0 24 24" fill="none">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                Entrando...
+              </span>
+              <span v-else>Entrar</span>
             </button>
 
             <div
@@ -129,7 +137,7 @@
                 href="#"
                 class="hover:underline forgot-link"
                 style="margin-bottom: 80px"
-                @click.prevent="(forgotStep = 1, forgotMessage = '', mode = 'forgot')"
+                @click.prevent="(forgotStep = 1, mode = 'forgot')"
                 >Esqueci minha senha</a
               >
 
@@ -196,8 +204,15 @@
                 <input v-model="forgot.email" type="email" placeholder="E-mail" class="w-full pl-10 pr-3 py-3 rounded-lg bg-[#241d26] text-gray-200 placeholder-gray-500 outline-none focus:ring-2 focus:ring-amber-500 login-input email-input" required />
               </label>
 
-              <button :disabled="forgotLoading" class="mt-3 bg-amber-500 text-[#2b2430] login-button py-3 rounded-lg shadow-md">
-                Enviar código
+              <button :disabled="forgotLoading" :aria-busy="forgotLoading ? 'true' : 'false'" class="mt-3 bg-amber-500 text-[#2b2430] login-button py-3 rounded-lg shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
+                <span v-if="forgotLoading" class="inline-flex items-center gap-2">
+                  <svg class="animate-spin h-5 w-5 text-[#2b2430]" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                  Enviando...
+                </span>
+                <span v-else>Enviar código</span>
               </button>
               <button type="button" @click="mode = 'login'" class="text-sm text-gray-300 hover:underline">Voltar para login</button>
             </template>
@@ -236,11 +251,20 @@
                 <input v-model="forgot.password_confirmation" type="password" placeholder="Confirmar senha" class="w-full pl-10 pr-3 py-3 rounded-lg bg-[#241d26] text-gray-200 placeholder-gray-500 outline-none focus:ring-2 focus:ring-amber-500 login-input" required />
               </label>
 
-              <button :disabled="forgotLoading" class="mt-3 bg-amber-500 text-[#2b2430] login-button py-3 rounded-lg shadow-md">Redefinir senha</button>
+              <button :disabled="forgotLoading" :aria-busy="forgotLoading ? 'true' : 'false'" class="mt-3 bg-amber-500 text-[#2b2430] login-button py-3 rounded-lg shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
+                <span v-if="forgotLoading" class="inline-flex items-center gap-2">
+                  <svg class="animate-spin h-5 w-5 text-[#2b2430]" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                  Redefinindo...
+                </span>
+                <span v-else>Redefinir senha</span>
+              </button>
               <button type="button" @click="mode = 'login'" class="text-sm text-gray-300 hover:underline">Voltar para login</button>
             </template>
 
-            <p v-if="forgotMessage" class="text-sm text-amber-100 text-center">{{ forgotMessage }}</p>
+
           </form>
         </div>
       </div>
@@ -414,9 +438,17 @@
             <div class="flex flex-col gap-3 mt-2">
               <button
                 :disabled="loadingRegister"
-                class="mt-1 bg-amber-500 text-[#2b2430] login-button py-3 rounded-lg shadow-md"
+                :aria-busy="loadingRegister ? 'true' : 'false'"
+                class="mt-1 bg-amber-500 text-[#2b2430] login-button py-3 rounded-lg shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Cadastrar
+                <span v-if="loadingRegister" class="inline-flex items-center gap-2">
+                  <svg class="animate-spin h-5 w-5 text-[#2b2430]" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                  Cadastrando...
+                </span>
+                <span v-else>Cadastrar</span>
               </button>
               <button
                 type="button"
@@ -437,11 +469,20 @@
       </div>
     </div>
   </div>
+
+  <Toast
+    :show="toast.show"
+    :message="toast.message"
+    :type="toast.type"
+    :duration="toast.duration"
+    @close="toast.show = false"
+  />
 </template>
 
 <script setup>
 import { reactive, ref } from "vue";
 import api from "../services/api";
+import Toast from "./Toast.vue";
 
 // Import local image via Vite so it's included in the build
 import localImgUrl from "/resources/images/Imagem.png?url";
@@ -460,7 +501,21 @@ const error = ref("");
 const forgotStep = ref(1); // 1=request email, 2=enter code
 const forgot = reactive({ email: '', code: '', password: '', password_confirmation: '' });
 const forgotLoading = ref(false);
-const forgotMessage = ref('');
+// removed inline helper message below form; success is shown via toast only
+
+// Simple toast state (used by Toast component)
+const toast = reactive({ show: false, message: '', type: 'error', duration: 3500 });
+let toastTimer = null;
+function showToast(message, type = 'error', timeout = 3500) {
+  toast.message = message;
+  toast.type = type;
+  toast.duration = timeout;
+  toast.show = true;
+  if (toastTimer) {
+    window.clearTimeout(toastTimer);
+  }
+  toastTimer = window.setTimeout(() => (toast.show = false), timeout);
+}
 
 async function submit() {
   loading.value = true;
@@ -491,13 +546,25 @@ async function submit() {
 
 async function sendForgotEmail() {
   forgotLoading.value = true;
-  forgotMessage.value = '';
   try {
-    await api.post('/users/password/forgot', { email: forgot.email });
-    forgotMessage.value = 'Se o e-mail existir, um código foi enviado.';
+    // basic client validation for email format
+    const emailRe = /^\S+@\S+\.\S+$/;
+    if (!emailRe.test(forgot.email)) {
+      showToast('Informe um e-mail válido.', 'error');
+      return; // finally will run and stop loading
+    }
+  await api.post('/users/password/forgot', { email: forgot.email });
+    showToast('Código de recuperação enviado para seu e-mail.', 'success');
     forgotStep.value = 2;
   } catch (err) {
-    forgotMessage.value = err.response?.data?.message || 'Erro ao solicitar o código.';
+    const backendErrors = err.response?.data?.errors;
+    if (backendErrors) {
+      const firstField = Object.keys(backendErrors)[0];
+      showToast(backendErrors[firstField][0] || 'Erro ao solicitar o código.', 'error');
+    } else {
+      const msg = err.response?.data?.message || 'Erro ao solicitar o código.';
+      showToast(msg, 'error');
+    }
   } finally {
     forgotLoading.value = false;
   }
@@ -513,8 +580,9 @@ async function submitResetWithCode() {
       password: forgot.password,
       password_confirmation: forgot.password_confirmation
     };
-    const res = await api.post('/users/password/reset', payload);
-    forgotMessage.value = res.data?.message || 'Senha atualizada com sucesso.';
+  const res = await api.post('/users/password/reset', payload);
+  const msg = res.data?.message || 'Senha atualizada com sucesso.';
+  showToast(msg, 'success');
   // after success, go back to login and prefill email
   mode.value = 'login';
     form.email = forgot.email;
@@ -525,7 +593,14 @@ async function submitResetWithCode() {
     forgot.password_confirmation = '';
     forgotStep.value = 1;
   } catch (err) {
-    forgotMessage.value = err.response?.data?.message || 'Erro ao resetar a senha.';
+    const backendErrors = err.response?.data?.errors;
+    if (backendErrors) {
+      const firstField = Object.keys(backendErrors)[0];
+      showToast(backendErrors[firstField][0] || 'Erro ao resetar a senha.', 'error');
+    } else {
+      const msg = err.response?.data?.message || 'Erro ao resetar a senha.';
+      showToast(msg, 'error');
+    }
   } finally {
     forgotLoading.value = false;
   }
@@ -836,6 +911,9 @@ async function submitRegister() {
   right: auto;
   opacity: 1;
 }
+
+/* utility for toast min width in case Tailwind class not processed */
+.min-w-\[260px\] { min-width: 260px; }
 
 @media (max-width: 767px) {
   .form-register {

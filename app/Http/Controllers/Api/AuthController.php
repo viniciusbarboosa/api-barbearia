@@ -51,7 +51,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
         if (!$user) {
-            return response()->json(['message' => 'Se o e-mail existir, você receberá instruções em breve.'], 200);
+            return response()->json(['message' => 'E-mail não encontrado.'], 404);
         }
 
         // generate 6-digit numeric code
