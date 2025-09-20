@@ -3,7 +3,18 @@ import { createRouter, createWebHistory } from 'vue-router';
 import MainLayout from '../components/layout/MainLayout.vue';
 import Login from '../components/Login.vue';
 import Home from '../components/Home.vue';
+import HomeBarber from '../components/HomeBarber.vue';
 import Profile from '../components/Profile.vue';
+
+const getUserType = () => {
+  const userString = localStorage.getItem('user');
+  if (!userString) return null;
+  try {
+    return JSON.parse(userString).user_type;
+  } catch (e) {
+    return null;
+  }
+};
 
 const routes = [
   {
@@ -13,9 +24,15 @@ const routes = [
       {
         path: '',
         name: 'Home',
-        component: Home,
+        component: () => {
+          const type = getUserType();
+          if (type === 'B') {
+            return HomeBarber;
+          }
+          return Home;
+        },
         meta: { requiresAuth: true }
-      }
+      },
     ]
   },
   {
