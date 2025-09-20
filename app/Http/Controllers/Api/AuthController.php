@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PasswordResetCode;
 use Carbon\Carbon;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
@@ -132,5 +133,50 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
         return response()->json(['message' => 'Logout realizado com sucesso!']);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuário não autenticado'], 401);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'old_password' => 'nullable|string',
+            'password' => [
+                'nullable',
+                'string',
+                'confirmed',
+                Password::min(8)
+                        ->letters()
+                        ->mixedCase()
+                        ->symbols()
+            ],
+        ]);
+
+        $user->name = $request->name;
+
+        if ($request->filled('password')) {
+
+            if (!$request->filled('old_password')) {
+                return response()->json(['message' => 'Para alterar a senha, você precisa informar sua senha atual.'], 422);
+            }
+
+            if (!Hash::check($request->old_password, $user->password)) {
+                return response()->json(['message' => 'A senha atual está incorreta.'], 422);
+            }
+
+            $user->password = Hash::make($request->password);
+        }
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Perfil atualizado com sucesso!',
+            'user' => $user
+        ]);
     }
 }
