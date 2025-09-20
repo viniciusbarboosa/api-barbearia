@@ -5,6 +5,7 @@ import Login from '../components/Login.vue';
 import Home from '../components/Home.vue';
 import HomeBarber from '../components/HomeBarber.vue';
 import Profile from '../components/Profile.vue';
+import ProfileBarber from '../components/ProfileBarber.vue';
 
 const getUserType = () => {
   const userString = localStorage.getItem('user');
@@ -43,7 +44,13 @@ const routes = [
   {
     path: '/profile',
     name: 'Profile',
-    component: Profile,
+    component: () => {
+      const type = getUserType();
+      if (type === 'B') {
+        return ProfileBarber;
+      }
+      return Profile;
+    },
     meta: { requiresAuth: true }
   }
 ];
