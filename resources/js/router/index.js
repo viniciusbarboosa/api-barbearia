@@ -6,74 +6,86 @@ import Home from '../components/Home.vue';
 import HomeBarber from '../components/HomeBarber.vue';
 import Profile from '../components/Profile.vue';
 import ProfileBarber from '../components/ProfileBarber.vue';
+import ScheduleManager from '../components/ScheduleManager.vue';
 
 const getUserType = () => {
-  const userString = localStorage.getItem('user');
-  if (!userString) return null;
-  try {
-    return JSON.parse(userString).user_type;
-  } catch (e) {
-    return null;
-  }
+    const userString = localStorage.getItem('user');
+    if (!userString) return null;
+    try {
+        return JSON.parse(userString).user_type;
+    } catch (e) {
+        return null;
+    }
 };
 
 const routes = [
-  {
-    path: '/',
-    component: MainLayout,
-    children: [
-      {
-        path: '',
-        name: 'Home',
+    {
+        path: '/',
+        component: MainLayout,
+        children: [
+            {
+                path: '',
+                name: 'Home',
+                component: () => {
+                    const type = getUserType();
+                    if (type === 'B') {
+                        return HomeBarber;
+                    }
+                    return Home;
+                },
+                meta: { requiresAuth: true }
+            }, {
+                path: '/horarios',
+                name: 'Horarios',
+                component: ScheduleManager,
+                meta: { requiresAuth: true, requiresBarber: true }
+            }
+        ]
+    },
+    {
+        path: '/login',
+        name: 'Login',
+        component: Login
+    },
+    {
+        path: '/perfil',
+        name: 'Perfil',
         component: () => {
-          const type = getUserType();
-          if (type === 'B') {
-            return HomeBarber;
-          }
-          return Home;
+            const type = getUserType();
+            if (type === 'B') {
+                return ProfileBarber;
+            }
+            return Profile;
         },
         meta: { requiresAuth: true }
-      },
-    ]
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: Login
-  },
-  {
-    path: '/perfil',
-    name: 'Perfil',
-    component: () => {
-      const type = getUserType();
-      if (type === 'B') {
-        return ProfileBarber;
-      }
-      return Profile;
-    },
-    meta: { requiresAuth: true }
-  }
+    }
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes,
+    history: createWebHistory(),
+    routes,
 });
 
 router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  const token = localStorage.getItem('auth_token');
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+    const requiresBarber = to.matched.some(record => record.meta.requiresBarber);
+    const token = localStorage.getItem('auth_token');
+    const userType = getUserType();
 
-  if (token && to.name === 'Login') {
-    next({ name: 'Home' });
-    return;
-  }
+    if (token && to.name === 'Login') {
+        return next({ name: 'Home' });
+    }
 
-  if (requiresAuth && !token) {
-    next('/login');
-  } else {
+    if (requiresAuth && !token) {
+        return next('/login');
+    }
+
+    // If the route requires being a barber and the logged in user is NOT of type 'B', redirected to the Home
+    if (requiresBarber && userType !== 'B') {
+        return next({ name: 'Home' });
+    }
+
     next();
-  }
 });
 
 export default router;
