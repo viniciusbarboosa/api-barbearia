@@ -42,8 +42,8 @@ const routes = [
     component: Login
   },
   {
-    path: '/profile',
-    name: 'Profile',
+    path: '/perfil',
+    name: 'Perfil',
     component: () => {
       const type = getUserType();
       if (type === 'B') {
