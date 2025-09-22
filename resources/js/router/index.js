@@ -7,6 +7,7 @@ import HomeBarber from '../components/HomeBarber.vue';
 import Profile from '../components/Profile.vue';
 import ProfileBarber from '../components/ProfileBarber.vue';
 import ScheduleManager from '../components/ScheduleManager.vue';
+import ServiceManager from '../components/ServiceManager.vue';
 
 const getUserType = () => {
     const userString = localStorage.getItem('user');
@@ -38,6 +39,12 @@ const routes = [
                 path: '/horarios',
                 name: 'Horarios',
                 component: ScheduleManager,
+                meta: { requiresAuth: true, requiresBarber: true }
+            },
+            {
+                path: '/servicos',
+                name: 'Servicos',
+                component: ServiceManager,
                 meta: { requiresAuth: true, requiresBarber: true }
             }
         ]
