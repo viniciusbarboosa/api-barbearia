@@ -3,17 +3,19 @@
     <h1 class="text-3xl sm:text-4xl font-bold font-roboto-slab mb-8 sm:mb-10">Barbeiros</h1>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <div
+     
+      <router-link
         v-for="barber in barbers"
         :key="barber.id"
-        class="bg-[#3E3B47] rounded-lg p-4 sm:p-6 flex items-center gap-4 sm:gap-5 cursor-pointer hover:ring-2 hover:ring-[#FF9000] transition-all"
+        :to="`/agendamento/${barber.id}`"
+        class="bg-[#3E3B47] rounded-lg p-4 sm:p-6 flex items-center gap-4 sm:gap-5 cursor-pointer hover:ring-2 hover:ring-[#FF9000] transition-all focus:outline-none focus:ring-2 focus:ring-[#FF9000]"
       >
         <img
-            class="object-cover w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-600"
+            class="object-cover w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-600 pointer-events-none"
             :src="barber.profile_photo || defaultAvatarUrl"
             :alt="barber.name"
         />
-        <div class="flex-1">
+        <div class="flex-1 pointer-events-none">
           <h3 class="text-lg sm:text-xl font-bold text-white">{{ barber.name }}</h3>
           <div class="flex items-start gap-2 mt-3">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#FF9000] mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,7 +27,8 @@
             </div>
           </div>
         </div>
-      </div>
+      </router-link>
+
     </div>
 
     <div ref="observerElement" class="h-10"></div>

@@ -35,6 +35,20 @@ class UserController extends Controller
         ]);
     }
 
+    public function get_barber_details($id)
+    {
+        $barber = User::select('id', 'name', 'profile_photo') 
+            ->where('user_type', 'B')
+            ->where('approved', 1)
+            ->find($id);
+
+        if (!$barber) {
+            return response()->json(['message' => 'Barbeiro não encontrado ou não está aprovado.'], 404);
+        }
+
+        return response()->json($barber);
+    }
+
     public function add_photo(FotoRequest $request)
     {
         try {

@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 //BARBEIRO
 Route::get('/barbers/approved', [UserController::class, 'list_approved_barbers'])->middleware('auth:sanctum');
+Route::get('/barbers/{id}', [UserController::class, 'get_barber_details'])->middleware('auth:sanctum');
 Route::middleware('auth:sanctum')->group(function() {
     Route::prefix('barbers/photos')->group(function() {
         Route::post('/', [UserController::class, 'add_photo']);
