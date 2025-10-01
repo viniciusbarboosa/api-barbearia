@@ -52,11 +52,6 @@ const routes = [
                 name: 'Agendamento',
                 component: SchedulingUser,
                 meta: { requiresAuth: true }
-            },{
-                path: '/meusAgendamentos',
-                name: 'MeusAgendamentos',
-                component: MySchedulesUser,
-                meta: { requiresAuth: true }
             }
         ]
     },
