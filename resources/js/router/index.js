@@ -9,6 +9,7 @@ import ProfileBarber from '../components/ProfileBarber.vue';
 import ScheduleManager from '../components/ScheduleManager.vue';
 import ServiceManager from '../components/ServiceManager.vue';
 import SchedulingUser from '../components/SchedulingUser.vue';
+import MySchedulesUser from '../components/MySchedulesUser.vue';
 
 const getUserType = () => {
     const userString = localStorage.getItem('user');
