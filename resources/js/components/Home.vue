@@ -3,7 +3,7 @@
     <h1 class="text-3xl sm:text-4xl font-bold font-roboto-slab mb-8 sm:mb-10">Barbeiros</h1>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-
+     
       <router-link
         v-for="barber in barbers"
         :key="barber.id"
