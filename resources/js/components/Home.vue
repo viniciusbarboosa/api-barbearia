@@ -1,9 +1,22 @@
 <template>
   <main class="flex-1 p-4 sm:p-8 md:p-12 overflow-y-auto">
-    <h1 class="text-3xl sm:text-4xl font-bold font-roboto-slab mb-8 sm:mb-10">Barbeiros</h1>
+
+    <div class="flex justify-between items-center mb-8 sm:mb-10">
+      <h1 class="text-3xl sm:text-4xl font-bold font-roboto-slab">Barbeiros</h1>
+
+      <router-link
+        to="/meusAgendamentos"
+        class="bg-[#FF9000] text-[#312E38] px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold hover:bg-[#FFA733] transition-colors flex items-center gap-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="hidden sm:inline">Meus Agendamentos</span>
+      </router-link>
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-     
+
       <router-link
         v-for="barber in barbers"
         :key="barber.id"
