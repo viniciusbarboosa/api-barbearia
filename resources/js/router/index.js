@@ -10,6 +10,7 @@ import ScheduleManager from '../components/ScheduleManager.vue';
 import ServiceManager from '../components/ServiceManager.vue';
 import SchedulingUser from '../components/SchedulingUser.vue';
 import MySchedulesUser from '../components/MySchedulesUser.vue';
+import BarberAppointments from '../components/BarberAppointments.vue';
 
 const getUserType = () => {
     const userString = localStorage.getItem('user');
@@ -58,6 +59,11 @@ const routes = [
                 name: 'MeusAgendamentos',
                 component: MySchedulesUser,
                 meta: { requiresAuth: true }
+            },{
+                path: '/agendamentosBarbearia',
+                name: 'AgendamentosBarbearia',
+                component: BarberAppointments,
+                meta: { requiresAuth: true, requiresBarber: true }
             }
         ]
     },
