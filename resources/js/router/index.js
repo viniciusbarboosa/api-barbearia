@@ -1,3 +1,4 @@
+// router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
 
 import MainLayout from '../components/layout/MainLayout.vue';
@@ -12,14 +13,32 @@ import SchedulingUser from '../components/SchedulingUser.vue';
 import MySchedulesUser from '../components/MySchedulesUser.vue';
 import BarberAppointments from '../components/BarberAppointments.vue';
 
+// Helper functions
+const isClient = () => typeof window !== 'undefined';
+
 const getUserType = () => {
-    const userString = localStorage.getItem('user');
-    if (!userString) return null;
+    if (!isClient()) return null;
+
     try {
-        return JSON.parse(userString).user_type;
+        const userString = localStorage.getItem('user');
+        return userString ? JSON.parse(userString).user_type : null;
     } catch (e) {
         return null;
     }
+};
+
+const getHomeComponent = () => {
+    if (!isClient()) return Home; // Fallback para SSR
+
+    const type = getUserType();
+    return type === 'B' ? HomeBarber : Home;
+};
+
+const getProfileComponent = () => {
+    if (!isClient()) return Profile; // Fallback para SSR
+
+    const type = getUserType();
+    return type === 'B' ? ProfileBarber : Profile;
 };
 
 const routes = [
@@ -30,15 +49,10 @@ const routes = [
             {
                 path: '',
                 name: 'Home',
-                component: () => {
-                    const type = getUserType();
-                    if (type === 'B') {
-                        return HomeBarber;
-                    }
-                    return Home;
-                },
+                component: getHomeComponent(),
                 meta: { requiresAuth: true }
-            }, {
+            },
+            {
                 path: '/horarios',
                 name: 'Horarios',
                 component: ScheduleManager,
@@ -49,17 +63,20 @@ const routes = [
                 name: 'Servicos',
                 component: ServiceManager,
                 meta: { requiresAuth: true, requiresBarber: true }
-            },{
+            },
+            {
                 path: '/agendamento/:barberId',
                 name: 'Agendamento',
                 component: SchedulingUser,
                 meta: { requiresAuth: true }
-            },{
+            },
+            {
                 path: '/meusAgendamentos',
                 name: 'MeusAgendamentos',
                 component: MySchedulesUser,
                 meta: { requiresAuth: true }
-            },{
+            },
+            {
                 path: '/agendamentosBarbearia',
                 name: 'AgendamentosBarbearia',
                 component: BarberAppointments,
@@ -75,13 +92,7 @@ const routes = [
     {
         path: '/perfil',
         name: 'Perfil',
-        component: () => {
-            const type = getUserType();
-            if (type === 'B') {
-                return ProfileBarber;
-            }
-            return Profile;
-        },
+        component: getProfileComponent(),
         meta: { requiresAuth: true }
     }
 ];
@@ -92,6 +103,10 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+    if (!isClient()) {
+        return next();
+    }
+
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
     const requiresBarber = to.matched.some(record => record.meta.requiresBarber);
     const token = localStorage.getItem('auth_token');
@@ -105,7 +120,6 @@ router.beforeEach((to, from, next) => {
         return next('/login');
     }
 
-    // If the route requires being a barber and the logged in user is NOT of type 'B', redirected to the Home
     if (requiresBarber && userType !== 'B') {
         return next({ name: 'Home' });
     }

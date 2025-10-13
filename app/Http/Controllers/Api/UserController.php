@@ -19,8 +19,14 @@ class UserController extends Controller
         $barbers = User::where('user_type', 'B')
             ->where('approved', 1)
             ->orderBy('name')
-            ->with('barberPhotos')
             ->paginate(16, ['id', 'name', 'email', 'profile_photo']);
+
+        $barbers->getCollection()->transform(function ($barber) {
+            if ($barber->profile_photo) {
+                $barber->profile_photo = asset('storage/profile_photos/' . $barber->profile_photo);
+            }
+            return $barber;
+        });
 
         return response()->json([
             'success' => true,
@@ -35,19 +41,25 @@ class UserController extends Controller
         ]);
     }
 
-    public function get_barber_details($id)
-    {
-        $barber = User::select('id', 'name', 'profile_photo') 
-            ->where('user_type', 'B')
-            ->where('approved', 1)
-            ->find($id);
+   public function get_barber_details($id)
+{
+    $barber = User::where('user_type', 'B')
+        ->where('approved', 1)
+        ->find($id);
 
-        if (!$barber) {
-            return response()->json(['message' => 'Barbeiro não encontrado ou não está aprovado.'], 404);
-        }
-
-        return response()->json($barber);
+    if (!$barber) {
+        return response()->json(['message' => 'Barbeiro não encontrado ou não está aprovado.'], 404);
     }
+
+    if ($barber->profile_photo) {
+        $barber->profile_photo_url = asset('storage/profile_photos/' . $barber->profile_photo);
+    } else {
+        $barber->profile_photo_url = null;
+    }
+
+    return response()->json($barber);
+}
+
 
     public function add_photo(FotoRequest $request)
     {

@@ -51,7 +51,7 @@ import { ref, onMounted } from 'vue';
 import logoUrl from '/resources/images/logo.png?url';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
-import defaultAvatar from '/resources/images/logo.png?url';
+import defaultAvatar from '/resources/images/defaultavatar.jpg'; 
 
 const router = useRouter();
 const user = ref(null);

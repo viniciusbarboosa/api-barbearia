@@ -15,7 +15,7 @@
       <img
         v-if="barber"
         class="object-cover w-16 h-16 rounded-full bg-gray-600"
-        :src="barber.profile_photo || defaultAvatarUrl"
+        :src="barber.profile_photo_url || defaultAvatarUrl"
         :alt="barber.name"
       />
       <h1 class="text-2xl sm:text-3xl font-bold text-[#F4EDE8]">

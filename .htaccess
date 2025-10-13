@@ -11,6 +11,7 @@ Require all denied
 </IfModule>
 </Files>
 
-<IfModule mod_alias.c>
-RedirectMatch 301 ^/$ https://vcommits.com.br/public
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
