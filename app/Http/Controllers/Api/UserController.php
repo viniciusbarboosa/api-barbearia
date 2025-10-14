@@ -11,20 +11,49 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\FotoRequest;
+use App\Models\BarberSchedule;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
     public function list_approved_barbers()
     {
+        $today = Carbon::today()->toDateString();
+
         $barbers = User::where('user_type', 'B')
             ->where('approved', 1)
             ->orderBy('name')
             ->paginate(16, ['id', 'name', 'email', 'profile_photo']);
 
-        $barbers->getCollection()->transform(function ($barber) {
+        $barberIds = $barbers->pluck('id');
+
+        $schedulesToday = BarberSchedule::select(
+                'user_id',
+                DB::raw('MIN(start_time) as first_slot'),
+                DB::raw('MAX(end_time) as last_slot')
+            )
+            ->where('date', $today)
+            ->whereIn('user_id', $barberIds)
+            ->groupBy('user_id')
+            ->get()
+            ->keyBy('user_id');
+
+        $barbers->getCollection()->transform(function ($barber) use ($schedulesToday) {
             if ($barber->profile_photo) {
                 $barber->profile_photo = asset('storage/profile_photos/' . $barber->profile_photo);
             }
+
+            if (isset($schedulesToday[$barber->id])) {
+                $schedule = $schedulesToday[$barber->id];
+                $barber->work_hours_today = [
+                    'start' => substr($schedule->first_slot, 0, 5),
+                    'end'   => substr($schedule->last_slot, 0, 5),
+                ];
+            } else {
+                $barber->work_hours_today = null;
+            }
+
             return $barber;
         });
 
@@ -41,24 +70,24 @@ class UserController extends Controller
         ]);
     }
 
-   public function get_barber_details($id)
-{
-    $barber = User::where('user_type', 'B')
-        ->where('approved', 1)
-        ->find($id);
+    public function get_barber_details($id)
+    {
+        $barber = User::where('user_type', 'B')
+            ->where('approved', 1)
+            ->find($id);
 
-    if (!$barber) {
-        return response()->json(['message' => 'Barbeiro não encontrado ou não está aprovado.'], 404);
+        if (!$barber) {
+            return response()->json(['message' => 'Barbeiro não encontrado ou não está aprovado.'], 404);
+        }
+
+        if ($barber->profile_photo) {
+            $barber->profile_photo_url = asset('storage/profile_photos/' . $barber->profile_photo);
+        } else {
+            $barber->profile_photo_url = null;
+        }
+
+        return response()->json($barber);
     }
-
-    if ($barber->profile_photo) {
-        $barber->profile_photo_url = asset('storage/profile_photos/' . $barber->profile_photo);
-    } else {
-        $barber->profile_photo_url = null;
-    }
-
-    return response()->json($barber);
-}
 
 
     public function add_photo(FotoRequest $request)

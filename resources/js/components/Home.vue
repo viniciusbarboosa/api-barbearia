@@ -30,15 +30,24 @@
         />
         <div class="flex-1 pointer-events-none">
           <h3 class="text-lg sm:text-xl font-bold text-white">{{ barber.name }}</h3>
+
           <div class="flex items-start gap-2 mt-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#FF9000] mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div class="text-sm text-[#999591] text-left">
-              <p>Segunda à Sexta</p>
-              <p>8h às 18h</p>
-            </div>
-          </div>
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#FF9000] mt-0.5" fill="none" viewBox="0 0 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div class="text-sm text-[#999591] text-left">
+        <!-- v-if verifica se o barbeiro tem horários cadastrados para hoje -->
+        <div v-if="barber.work_hours_today">
+            <p class="font-semibold text-white">Hoje</p>
+            <p>{{ barber.work_hours_today.start }}h às {{ barber.work_hours_today.end }}h</p>
+        </div>
+        <!-- v-else é executado caso não tenha horários -->
+        <div v-else>
+            <p>Sem horários para hoje</p>
+        </div>
+    </div>
+</div>
+
         </div>
       </router-link>
 
