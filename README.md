@@ -64,3 +64,24 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+# api-barbearia
+
+Frontend (Vue + Vite)
+---------------------
+
+This project uses Vite for the frontend. I added Vue 3 and the Vite Vue plugin, plus a small example component mounted on the welcome page.
+
+To install and run the frontend locally:
+
+```bash
+# from project root
+npm install
+npm run dev
+```
+
+To build for production:
+
+```bash
+npm run build
+```

@@ -11,23 +11,19 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('horario_barbearias', function (Blueprint $table) {
+    Schema::create('barber_photos', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
-            $table->date('data');
-            $table->time('horario_inicio');
-            $table->time('horario_fim');
-            $table->boolean('disponivel')->default(true);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('photo_path');
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('horario_barbearias');
+    Schema::dropIfExists('barber_photos');
     }
 };

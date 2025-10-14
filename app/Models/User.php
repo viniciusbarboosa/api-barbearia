@@ -22,9 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'tipo_usuario',
-        'aprovado',
-        'foto_perfil'
+    'user_type',
+    'approved',
+    'profile_photo'
     ];
 
     /**
@@ -51,8 +51,8 @@ class User extends Authenticatable
     }
 
     //RELACIONAMENTOS COM OUTRAS TABLES
-    public function fotosBarbearia()
+    public function barberPhotos()
     {
-        return $this->hasMany(BarbeariaFoto::class);
+        return $this->hasMany(BarberPhoto::class);
     }
 }

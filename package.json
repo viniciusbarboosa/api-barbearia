@@ -2,10 +2,12 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "dev": "vite"
+        "build": "node -r ./vite-crypto-polyfill.cjs ./node_modules/.bin/vite build",
+        "dev": "node -r ./vite-crypto-polyfill.cjs ./node_modules/.bin/vite",
+        "dev:poly": "node -r ./vite-crypto-polyfill.cjs ./node_modules/.bin/vite"
     },
     "devDependencies": {
+        "@vitejs/plugin-vue": "^5.0.0",
         "autoprefixer": "^10.4.20",
         "axios": "^1.7.4",
         "concurrently": "^9.0.1",
@@ -15,6 +17,9 @@
         "vite": "^6.0.11"
     },
     "dependencies": {
-        "react-native-vector-icons": "^10.2.0"
+        "react-native-vector-icons": "^10.2.0",
+        "v-calendar": "^3.1.2",
+        "vue": "^3.3.4",
+        "vue-router": "^4.5.1"
     }
 }

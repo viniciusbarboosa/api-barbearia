@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Import Roboto Slab (weights 400 and 500) */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500&display=swap');
+
+@layer base {
+	body {
+		font-family: 'Roboto Slab', serif;
+		font-weight: 400;
+		font-size: 16px;
+		/* leading-trim is experimental; included because requested */
+		leading-trim: none;
+		line-height: 100%;
+		letter-spacing: 0%;
+		text-align: center;
+	}
+}
