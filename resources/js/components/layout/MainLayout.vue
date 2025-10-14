@@ -3,12 +3,6 @@
     <header class="h-28 bg-[#28262E] flex items-center justify-between px-4 sm:px-8 md:px-12 border-b-2 border-[#3E3B47]">
       <div class="flex items-center gap-4 md:gap-8">
         <img :src="logoUrl" alt="GoBarber Logo" class="h-20 w-auto" />
-        <div class="hidden md:flex items-center gap-2 text-[#FF9000] cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          <span class="font-medium">Barbeiros</span>
-        </div>
       </div>
       <div class="flex items-center gap-2 sm:gap-4">
         <router-link
@@ -51,7 +45,7 @@ import { ref, onMounted } from 'vue';
 import logoUrl from '/resources/images/logo.png?url';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
-import defaultAvatar from '/resources/images/defaultavatar.jpg'; 
+import defaultAvatar from '/resources/images/defaultavatar.jpg';
 
 const router = useRouter();
 const user = ref(null);
